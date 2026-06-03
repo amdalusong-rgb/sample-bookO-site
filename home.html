@@ -36,6 +36,18 @@
         .btn-home { left: 42.5%; width: 7.5%; }
         .btn-read { left: 51.0%; width: 6.5%; }
 
+        /* --- DASHBOARD INTERACTIVE TOGGLE HITBOX --- */
+        .dashboard-switch-overlay {
+            position: absolute;
+            top: 41.2%; 
+            left: 11.2%;
+            width: 3.5%; 
+            height: 2.2%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 110;
+        }
+
         /* The File Drag/Drop/Click Zone Container */
         .drop-zone {
             position: absolute;
@@ -130,7 +142,9 @@
         <img src="home.png" alt="bookO Layout background" class="web-page">
 
         <div class="nav-hotspot btn-home" onclick="window.location.href='home.html'"></div>
-        <div class="nav-hotspot btn-read" onclick="window.location.href='readOpenDyslexic.html'"></div>
+        <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
+
+        <input type="checkbox" id="dashToggleDyslexia" class="dashboard-switch-overlay">
 
         <div id="dropZone" class="drop-zone">
             <input type="file" id="fileInput" accept=".pdf" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; z-index: 55;">
@@ -148,31 +162,34 @@
     </div>
 
 <script>
-    // Global App Variables
     let uploadedFile = null;
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const filePill = document.getElementById('filePill');
     const pillFileName = document.getElementById('pillFileName');
     const pillFileSize = document.getElementById('pillFileSize');
+    const dashToggle = document.getElementById('dashToggleDyslexia');
 
-    // FIXED: Correctly configures the unpkg worker file so PDF parsing executes safely
     try {
         if (typeof pdfjsLib !== 'undefined') {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js';
-        } else {
-            console.error("PDF.js library was unreachable during initial startup.");
         }
     } catch (e) {
         console.error("Worker assignment error: ", e);
     }
 
-    // Direct file selection tracking handler
+    // Load initial checkbox state on dashboard load
+    if (dashToggle) {
+        dashToggle.checked = localStorage.getItem("dyslexicModeEnabled") === "true";
+        dashToggle.addEventListener('change', () => {
+            localStorage.setItem("dyslexicModeEnabled", dashToggle.checked ? "true" : "false");
+        });
+    }
+
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
     });
 
-    // Handle drag and drop files securely
     window.addEventListener('dragover', (e) => e.preventDefault());
     window.addEventListener('drop', (e) => e.preventDefault());
     
@@ -192,10 +209,7 @@
         uploadedFile = file;
         
         let sizeText = (file.size / 1024).toFixed(1) + " KB";
-        if (file.size > 1048576) {
-            sizeText = (file.size / 1048576).toFixed(1) + " MB";
-        }
-
+        if (file.size > 1048576) { sizeText = (file.size / 1048576).toFixed(1) + " MB"; }
         pillFileName.innerText = file.name;
         pillFileSize.innerText = sizeText;
         filePill.style.display = 'flex'; 
@@ -206,20 +220,17 @@
             alert("Please choose or drop a PDF file first!");
             return;
         }
-
         if (typeof pdfjsLib === 'undefined') {
-            alert("The reading library is taking a moment to initialize. Please wait a few seconds and try again.");
+            alert("Library initializing. Please wait.");
             return;
         }
 
         const reader = new FileReader();
         reader.onload = function(e) {
             const typedarray = new Uint8Array(e.target.result);
-
             pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
                 let maxPages = Math.min(pdf.numPages, 5);
                 let countPromises = [];
-                
                 for (let i = 1; i <= maxPages; i++) {
                     countPromises.push(pdf.getPage(i).then(page => {
                         return page.getTextContent().then(textContent => {
@@ -227,27 +238,23 @@
                         });
                     }));
                 }
-
                 return Promise.all(countPromises).then(pagesText => {
                     let rawText = pagesText.join(" ").replace(/\s+/g, ' ').trim();
                     let sentencesArray = rawText.match(/[^.!?]+[.!?]+(\s|$)/g);
-
                     if (sentencesArray && sentencesArray.length > 0) {
                         sentencesArray = sentencesArray.map(s => s.trim()).filter(s => s.length > 3);
                     } else {
                         sentencesArray = rawText.split('.').map(s => s.trim() + ".").filter(s => s.length > 3);
                     }
-
                     if (sentencesArray && sentencesArray.length > 0) {
                         localStorage.setItem("processedPdfText", JSON.stringify(sentencesArray));
-                        window.location.href = "readOpenDyslexic.html";
+                        window.location.href = "read.html";
                     } else {
-                        alert("Could not process clear text blocks from this PDF resource layer.");
+                        alert("Could not process text layers.");
                     }
                 });
             }).catch(function(err) {
-                console.error(err);
-                alert("Error compiling document pages.");
+                alert("Error compiling document.");
             });
         };
         reader.readAsArrayBuffer(uploadedFile);
