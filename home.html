@@ -130,7 +130,7 @@
         <img src="home.png" alt="bookO Layout background" class="web-page">
 
         <div class="nav-hotspot btn-home" onclick="window.location.href='home.html'"></div>
-        <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
+        <div class="nav-hotspot btn-read" onclick="window.location.href='readOpenDyslexic.html'"></div>
 
         <div id="dropZone" class="drop-zone">
             <input type="file" id="fileInput" accept=".pdf" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; z-index: 55;">
@@ -240,7 +240,7 @@
 
                     if (sentencesArray && sentencesArray.length > 0) {
                         localStorage.setItem("processedPdfText", JSON.stringify(sentencesArray));
-                        window.location.href = "read.html";
+                        window.location.href = "readOpenDyslexic.html";
                     } else {
                         alert("Could not process clear text blocks from this PDF resource layer.");
                     }
