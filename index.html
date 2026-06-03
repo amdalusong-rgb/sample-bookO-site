@@ -11,42 +11,96 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #2b3925; /* Matches your background green */
+            background-color: #2b3925;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            font-family: Arial, sans-serif;
         }
         .wrapper {
             position: relative;
             width: 100%;
-            max-width: 1200px; /* Limits size nicely on desktop */
+            max-width: 1200px;
         }
         .web-page {
             width: 100%;
             height: auto;
             display: block;
         }
-        /* This is the invisible button area mapped over the login graphic */
-        .login-hotspot {
+        
+        /* Real Input Fields styled to sit perfectly over your graphic boxes */
+        .login-input {
             position: absolute;
-            top: 72.8%;       /* Nudges the box slightly higher up */
-            left: 19.3%;      /* Keeps it centered with the login box */
-            width: 21.2%;     /* Widened to perfectly match the brown button ends */
-            height: 5.6%;     /* Made slightly taller to match the button thickness */
+            left: 23.5%;
+            width: 14%;
+            height: 4.5%;
+            background: transparent; /* Makes the box background transparent */
+            border: none;            /* Removes default borders */
+            outline: none;           /* Removes blue focus ring */
+            font-size: 14px;
+            color: #5d4037;          /* Brown shade matching your design text */
+            padding-left: 5px;
+        }
+        
+        /* Email field precise alignment */
+        .email-field {
+            top: 54.8%;
+        }
+        
+        /* Password field precise alignment */
+        .password-field {
+            top: 63.6%;
+        }
+
+        /* Clickable Hotspots */
+        .google-hotspot, .login-hotspot {
+            position: absolute;
             cursor: pointer;
-            border-radius: 30px; /* Perfectly matches the curved ends of your button */
-            background-color: rgba(255, 0, 0, 0); /* CHANGED TO 0: Makes it 100% invisible! */
+            border-radius: 30px;
+            background-color: rgba(255, 0, 0, 0); /* Invisible */
+        }
+
+        /* Google Button Area */
+        .google-hotspot {
+            top: 42.6%;
+            left: 19.3%;
+            width: 21.2%;
+            height: 5.6%;
+        }
+
+        /* Brown Log In Button Area */
+        .login-hotspot {
+            top: 72.8%;
+            left: 19.3%;
+            width: 21.2%;
+            height: 5.6%;
         }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
+        <!-- Background Graphic Layer -->
         <img src="login.png" alt="Login Page" class="web-page">
         
+        <!-- Interactive Form Elements -->
+        <input type="email" class="login-input email-field" placeholder="Enter your email...">
+        <input type="password" class="login-input password-field" placeholder="••••••••">
+        
+        <!-- Interactive Hotspots -->
+        <div class="google-hotspot" onclick="simulateGoogleLogin()"></div>
         <a href="home.html" class="login-hotspot"></a>
     </div>
+
+    <script>
+        function simulateGoogleLogin() {
+            // Prompts a simulated Up Mail account sign-in sequence
+            alert("Logging in automatically via Google using your UP Mail account (@up.edu.ph)...");
+            // Redirects straight to the dashboard screen after clicking OK
+            window.location.href = "home.html";
+        }
+    </script>
 
 </body>
 </html>
