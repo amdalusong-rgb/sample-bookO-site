@@ -44,20 +44,35 @@
         .btn-assess { left: 61.5%; width: 10.0%; }
         .btn-profile { left: 72.5%; width: 7.5%; }
 
-        /* THE LIVE TEXT CONTAINER BOX LAYER */
-        .text-display-box {
+        /* LINE POSITIONING ENGINE FOR ACTIVE FOCUS BLOCKS */
+        .focus-line {
             position: absolute;
-            top: 52%;  /* Adjust these percentages to place the text right over your image box design layout */
-            left: 55%;
-            width: 40%;
-            transform: translate(-10%, -50%);
-            color: #5d432c; /* Uses your theme's elegant brown text */
-            font-weight: 700;
-            font-size: clamp(1rem, 1.5vw, 1.4rem);
-            line-height: 1.6;
-            z-index: 5;
+            left: 36%;
+            width: 48%;
+            font-size: clamp(0.75rem, 1.1vw, 1.1rem);
+            line-height: 1.3;
+            font-weight: 500;
             text-align: left;
-            padding-right: 20px;
+            z-index: 5;
+            pointer-events: none; /* Let clicks pass through if needed */
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Line 1 (Dark Focus Bar Overlay) */
+        #sentenceBox1 {
+            top: 31%;
+            height: 5.5%;
+            color: #ffffff; /* White text for contrast on the dark bar */
+            padding: 0 10px;
+        }
+
+        /* Line 2 (Second Gray Bar Overlay) */
+        #sentenceBox2 {
+            top: 37.5%;
+            height: 4.5%;
+            color: #1c1c1c; /* Dark text for contrast on the light gray bar */
+            padding: 0 10px;
         }
     </style>
 </head>
@@ -71,36 +86,36 @@
         <div class="nav-hotspot btn-assess" onclick="alert('Assessment module launching soon!')"></div>
         <div class="nav-hotspot btn-profile" onclick="alert('User profile settings menu loading...')"></div>
 
-        <div id="liveTextOutput" class="text-display-box">
-            Loading your document content...
-        </div>
+        <div id="sentenceBox1" class="focus-line">Loading line 1...</div>
+        <div id="sentenceBox2" class="focus-line">Loading line 2...</div>
     </div>
-
-    <div id="sentenceBox1" class="text-display-box" style="top: 8%;">Sentence line 1 will display here...</div>
-    <div id="sentenceBox2" class="text-display-box" style="top: 20%; opacity: 0.5;">Sentence line 2 will display here...</div>
 
     <script>
         window.onload = function() {
-            // Grab the raw JSON data block string out of storage memory
             const storedData = localStorage.getItem("processedPdfText");
-            
             const box1 = document.getElementById("sentenceBox1");
             const box2 = document.getElementById("sentenceBox2");
 
             if (storedData) {
-                // Parse the JSON array back into live script memory
-                const sentencesArray = JSON.parse(storedData);
-
-                if (sentencesArray && sentencesArray.length > 0) {
-                    // Inject your real document text data cleanly into your UI layout text cards!
-                    box1.innerText = sentencesArray[0]; 
-                    box2.innerText = sentencesArray[1] ? sentencesArray[1] : "...End of Document...";
-                } else {
-                    box1.innerText = "Empty text layers found inside this document file.";
+                try {
+                    // Check if data is stored as a structured array or a plain string
+                    const parsed = JSON.parse(storedData);
+                    
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        box1.innerText = parsed[0];
+                        box2.innerText = parsed[1] ? parsed[1] : "...End of Document...";
+                    } else {
+                        // If it parsed but isn't a valid array layout
+                        box1.innerText = storedData.substring(0, 80) + "...";
+                        box2.innerText = "";
+                    }
+                } catch(e) {
+                    // Fallback handle if it's stored as plain un-stringified text
+                    box1.innerText = storedData.substring(0, 80) + "...";
                     box2.innerText = "";
                 }
             } else {
-                box1.innerText = "No document active. Please go back to the home screen and drop a PDF file first!";
+                box1.innerText = "No document active. Please return to Home to drop a file.";
                 box2.innerText = "";
             }
         };
