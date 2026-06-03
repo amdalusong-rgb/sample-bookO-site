@@ -1,15 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bookO - Reader View</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0;
+            background-color: #1c2619;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; font-family: 'Comfortaa', sans-serif;
+        }
+        .wrapper { position: relative; width: 100%; max-width: 1000px; margin: auto; }
+        .web-page { width: 100%; height: auto; display: block; }
+
+        /* Document Reading White Sheet Wrapper Container */
+        .sheet-container {
+            position: absolute;
+            top: 18%; left: 34.5%;
+            width: 53.5%; height: 75%;
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 35px; /* FIXED: Restores clean Left/Right Margins */
+            overflow-y: auto;
+        }
+
+        /* Highlighted Box Focus Display Rows */
+        .focus-box-primary {
+            background-color: #263822;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 12px 18px;
+            border-radius: 8px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        .focus-box-secondary {
+            background-color: #e2e9e0;
+            color: #384e33;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 10px 18px;
+            border-radius: 8px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        /* FIXED: Line-by-Line Document Stream Layout Block */
+        .remaining-content-block {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .reading-line-item {
+            color: #b0b8ae;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            text-align: left;
+            word-break: break-word;
+            padding: 2px 4px;
+            border-bottom: 1px solid #f2f5f1; /* Matches traditional document formatting grids */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <img src="read.png" alt="bookO Reader Frame Layout" class="web-page">
+
+        <div class="sheet-container">
+            <div id="sentenceBox1" class="focus-box-primary">Loading your academic document text track...</div>
+            
+            <div id="sentenceBox2" class="focus-box-secondary">Preparing layout engine parsing frames...</div>
+
+            <div id="remainingTextBlock" class="remaining-content-block"></div>
+        </div>
+    </div>
+
 <script>
     window.onload = function() {
         const box1 = document.getElementById("sentenceBox1");
         const box2 = document.getElementById("sentenceBox2");
         const remainderContainer = document.getElementById("remainingTextBlock");
 
-        // CRITICAL RESET: Clear out formatting boundaries
         box1.innerText = "";
         box2.innerText = "";
         remainderContainer.innerHTML = "";
 
-        // 1. DATA ACQUISITION & FALLBACK CHECK
         let storedData = localStorage.getItem("processedPdfText");
         let sentences = [];
 
@@ -18,51 +106,36 @@
                 sentences = JSON.parse(storedData);
             }
         } catch (e) {
-            console.error("Error reading stored text array sequence:", e);
+            console.error("Error formatting payload array strings:", e);
         }
 
-        // Apply fallback instructions if array content is empty
+        // Fallback checks
         if (!sentences || sentences.length === 0) {
             sentences = [
-                "Welcome to bookO Reader!",
-                "No processing data track was detected from your dashboard session layout.",
-                "Please return to the Home page and load your academic document to begin reading line by line."
+                "No processing track data layer discovered.",
+                "Please make sure to choose or drag an academic document file inside your main dashboard workspace first."
             ];
         }
 
-        // 2. FIXED: LINE-BY-LINE HIGHLIGHT EXTRACTION
-        // Displays complete, uninterrupted sentences matching the core user design track
-        if (sentences.length > 0) {
-            box1.innerText = sentences[0];
-        }
-
+        // Inject active line focus tracks
+        if (sentences.length > 0) box1.innerText = sentences[0];
         if (sentences.length > 1) {
             box2.innerText = sentences[1];
-            box2.style.display = "flex";
+            box2.style.display = "block";
         } else {
             box2.style.display = "none";
         }
 
-        // 3. FIXED: MARGIN-ALIGNED UNHIGHLIGHTED FLOW RUNS
-        // Renders remaining sentences sequentially down the card with native CSS word wrap safety
+        // FIXED: Maps subsequent items line-by-line while keeping structural sheet margins intact
         if (sentences.length > 2) {
-            for (let i = 2; i < Math.min(sentences.length, 12); i++) {
-                const lineDiv = document.createElement("div");
-                
-                // Uses the styling rules from your remaining-line layout sheet class
-                lineDiv.className = "remaining-line"; 
-                lineDiv.innerText = sentences[i];
-                
-                // Injects CSS styles directly to enforce consistent layout margins
-                lineDiv.style.width = "100%";
-                lineDiv.style.textAlign = "left";
-                lineDiv.style.marginBottom = "12px";
-                lineDiv.style.lineHeight = "1.5";
-                lineDiv.style.wordBreak = "break-word";
-                lineDiv.style.whiteSpace = "normal";
-                
-                remainderContainer.appendChild(lineDiv);
+            for (let i = 2; i < sentences.length; i++) {
+                const lineElement = document.createElement("div");
+                lineElement.className = "reading-line-item";
+                lineElement.innerText = sentences[i];
+                remainderContainer.appendChild(lineElement);
             }
         }
     };
 </script>
+</body>
+</html>
