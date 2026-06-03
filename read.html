@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bookO - Reader Mode</title>
+    <title>bookO - Read</title>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -15,24 +18,87 @@
             align-items: center;
             min-height: 100vh;
             font-family: 'Comfortaa', sans-serif;
+        }
+        .wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .web-page {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* NAVIGATION HOTSPOTS (Bridges back to your dashboard pages seamlessly) */
+        .header-nav-hotspot {
+            position: absolute;
+            top: 4.8%;
+            height: 4.0%;
+            cursor: pointer;
+            background-color: rgba(255, 0, 0, 0); /* Change to 0.3 for mapping checks */
+            z-index: 10;
+        }
+        .btn-nav-home { left: 44.5%; width: 7.5%; }
+        .btn-nav-read { left: 54.0%; width: 6.5%; }
+        .btn-nav-assess { left: 61.5%; width: 10.0%; }
+        .btn-nav-profile { left: 72.5%; width: 7.5%; }
+
+        /* INTERACTIVE READER CONTENT CONTAINER AREA */
+        .workspace-viewer {
+            position: absolute;
+            top: 15%;
+            left: 5%;
+            width: 90%;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #f3edd7;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .focus-line-box {
+            background-color: #5d432c;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 2px solid #bfaea2;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: clamp(1.5rem, 2.5vw, 2.2rem);
             color: #f3edd7;
         }
-        .container {
-            text-align: center;
-        }
-        a {
-            color: #bfaea2;
-            text-decoration: none;
-            font-weight: bold;
+
+        p {
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            line-height: 1.6;
+            color: #e3dec9;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to the Read Tab Interface!</h1>
-        <p>Your document workspace loop is initializing here...</p>
-        <br>
-        <a href="home.html">← Go back to Dashboard</a>
+
+    <div class="wrapper">
+        <img src="home.png" alt="Read Workspace Background" class="web-page" style="opacity: 0.15;">
+
+        <div class="header-nav-hotspot btn-nav-home" onclick="window.location.href='home.html'"></div>
+        <div class="header-nav-hotspot btn-nav-read" onclick="window.location.href='Read.html'"></div>
+        <div class="header-nav-hotspot btn-nav-assess" onclick="alert('Assessment Section Loading...')"></div>
+        <div class="header-nav-hotspot btn-nav-profile" onclick="alert('User Profile Section Loading...')"></div>
+
+        <div class="workspace-viewer">
+            <div class="focus-line-box">
+                <h1>📖 Line-Focus Active Reading Mode</h1>
+                <p>Your workspace is configured! When a document loads, individual sentences pass through here to dramatically cut down layout cognitive loads.</p>
+            </div>
+        </div>
     </div>
+
 </body>
 </html>
