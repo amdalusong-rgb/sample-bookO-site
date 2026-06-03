@@ -12,10 +12,8 @@
             background-color: #1c2619;
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; font-family: 'Comfortaa', sans-serif;
-            transition: font-family 0.2s ease;
         }
         
-        /* OPTIONAL: Imports your target font style rules safely */
         @font-face {
             font-family: 'OpenDyslexic';
             src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/fonts/OpenDyslexic-Regular.woff2') format('woff2');
@@ -23,7 +21,7 @@
             font-style: normal;
         }
 
-        /* Rule to apply OpenDyslexic universally when toggled active */
+        /* Dynamically updates document fonts across target items when active */
         body.dyslexic-font, 
         body.dyslexic-font .focus-box-primary,
         body.dyslexic-font .focus-box-secondary,
@@ -34,6 +32,18 @@
         .wrapper { position: relative; width: 100%; max-width: 1000px; margin: auto; }
         .web-page { width: 100%; height: auto; display: block; }
 
+        /* --- INTERACTIVE HITBOX FOR SIDEBAR SLIDER SWITCH --- */
+        .dyslexia-switch-overlay {
+            position: absolute;
+            top: 34.5%; 
+            left: 11.2%;
+            width: 3.5%; 
+            height: 2.2%;
+            opacity: 0; /* Keeps it hidden while leaving the interactive frame clickable */
+            cursor: pointer;
+            z-index: 10;
+        }
+
         /* The white text display layout column wrapper box inside the graphic sheet asset boundaries */
         .sheet-container {
             position: absolute;
@@ -42,7 +52,7 @@
             background-color: transparent;
             display: flex;
             flex-direction: column;
-            padding: 24px 32px; /* Restores clean Left/Right Margins */
+            padding: 24px 32px;
             overflow-y: auto;
         }
 
@@ -99,6 +109,8 @@
     <div class="wrapper">
         <img id="readerBg" src="read.png" alt="bookO Reader Frame Layout" class="web-page">
 
+        <input type="checkbox" id="toggleDyslexia" class="dyslexia-switch-overlay">
+
         <div class="sheet-container">
             <div id="sentenceBox1" class="focus-box-primary">Loading your academic document text track...</div>
             <div id="sentenceBox2" class="focus-box-secondary">Preparing layout engine parsing frames...</div>
@@ -112,15 +124,13 @@
         const box2 = document.getElementById("sentenceBox2");
         const remainderContainer = document.getElementById("remainingTextBlock");
         const backgroundPageImg = document.getElementById("readerBg");
-        
-        // Find checkbox switch targets safely
-        const dyslexicToggle = document.getElementById("toggleDyslexia") || document.querySelector("input[type='checkbox']");
+        const dyslexicToggle = document.getElementById("toggleDyslexia");
 
         box1.innerText = "";
         box2.innerText = "";
         remainderContainer.innerHTML = "";
 
-        // 1. Render Parsed Text Sequences Array Channel
+        // Parse local storage content elements safely
         let storedData = localStorage.getItem("processedPdfText");
         let sentences = [];
 
@@ -156,11 +166,7 @@
             }
         }
 
-        // =========================================================================
-        // --- FIXED: LOAD STATE & INITIALIZE BACKGROUND ON STARTUP ---
-        // =========================================================================
-        
-        // Checks if OpenDyslexic setting was saved previously
+        // --- MANAGE PERSISTENT PERSISTENCE VIA LOCALSTORAGE ---
         let isDyslexicModeActive = localStorage.getItem("dyslexicModeEnabled") === "true";
 
         if (isDyslexicModeActive) {
@@ -173,7 +179,7 @@
             if (dyslexicToggle) dyslexicToggle.checked = false;
         }
 
-        // --- TRACK DYNAMIC USER MANIPULATIONS IN REALTIME ---
+        // --- CAPTURE USER HITBOX CLICK EVENTS ---
         if (dyslexicToggle) {
             dyslexicToggle.addEventListener('change', () => {
                 if (dyslexicToggle.checked) {
