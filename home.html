@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bookO - Dashboard</title>
+    <title>bookO - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -16,6 +17,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            font-family: 'Comfortaa', sans-serif;
         }
         .wrapper {
             position: relative;
@@ -28,83 +30,141 @@
             display: block;
         }
 
-        /* Nav Bar Hotspot System */
-        .nav-hotspot {
-            position: absolute;
-            top: 23.5%; /* Positioned right over your top navigation bar */
-            height: 5.0%;
-            cursor: pointer;
-            background-color: rgba(255, 0, 0, 0); /* Invisible */
+        /* Hidden standard file input */
+        #fileInput {
+            display: none;
         }
 
-        /* Individual Nav Button Map Coordinates */
-        .nav-home {
-            left: 44.2%;
-            width: 7.2%;
-        }
-        .nav-read {
-            left: 52.5%;
-            width: 6.8%;
-        }
-        .nav-assessment {
-            left: 60.5%;
-            width: 11.2%;
-        }
-        .nav-profile {
-            left: 72.8%;
-            width: 7.8%;
-        }
-
-        /* Content Action Hotspots (e.g., Let's Read Button / Upload Area) */
-        .upload-hotspot {
+        /* Interactive Drag & Drop Area Overlay */
+        .drop-zone-hotspot {
             position: absolute;
             top: 52.5%;
             left: 70.8%;
-            width: 12.5%;
-            height: 9.5%;
+            width: 11.5%;
+            height: 7.2%;
+            border-radius: 25px;
             cursor: pointer;
-            border-radius: 50%;
-            background-color: rgba(255, 0, 0, 0);
+            background-color: rgba(255, 0, 0, 0); /* Invisible by default */
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Visual indicator when a file is hovering over the area */
+        .drop-zone-hotspot.dragover {
+            background-color: rgba(109, 83, 57, 0.3); /* Subtle theme-brown highlight */
+            border: 2px dashed #6d5339;
+        }
+
+        /* Feedback text overlay showing uploaded file name safely beneath the area */
+        .file-status-text {
+            position: absolute;
+            top: 67.5%;
+            left: 67.0%;
+            width: 19.0%;
+            text-align: center;
+            font-size: clamp(10px, 0.9vw, 13px);
+            color: #6d5339;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+        }
+
+        /* "Let's Read!" Action Button Hotspot */
+        .read-btn-hotspot {
+            position: absolute;
+            top: 69.2%;
+            left: 70.8%;
+            width: 11.5%;
+            height: 3.2%;
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: rgba(255, 0, 0, 0); /* Invisible */
+            border: none;
+            padding: 0;
         }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
-        <!-- Dynamic Page Display Image Layer -->
-        <img id="pageDisplay" src="home.png" alt="Dashboard" class="web-page">
-        
-        <!-- Navigation Bar Interactive Grid -->
-        <div class="nav-hotspot nav-home" onclick="switchPage('home')"></div>
-        <div class="nav-hotspot nav-read" onclick="switchPage('read')"></div>
-        <div class="nav-hotspot nav-assessment" onclick="switchPage('assessment')"></div>
-        <div class="nav-hotspot nav-profile" onclick="switchPage('profile')"></div>
+        <!-- Background Graphic Layer -->
+        <img src="home2.png" alt="Home Page" class="web-page">
 
-        <!-- Interactive Core Layout Feature Hotspot -->
-        <div id="actionFeature" class="upload-hotspot" onclick="switchPage('read')"></div>
+        <!-- Hidden Native Upload Element -->
+        <input type="file" id="fileInput" accept=".pdf">
+
+        <!-- Active Drag and Drop Area -->
+        <div class="drop-zone-hotspot" id="dropZone" onclick="triggerBrowse()"></div>
+
+        <!-- Dynamic Status Display text area -->
+        <div class="file-status-text" id="statusText"></div>
+
+        <!-- Form Submission Button trigger area -->
+        <button class="read-btn-hotspot" onclick="processPdf()"></button>
     </div>
 
     <script>
-        function switchPage(pageName) {
-            const displayEl = document.getElementById('pageDisplay');
-            const actionEl = document.getElementById('actionFeature');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const statusText = document.getElementById('statusText');
+        let uploadedFile = null;
 
-            if (pageName === 'home') {
-                displayEl.src = 'home.png';
-                actionEl.style.display = 'block'; // Show drop zone on home screen
-            } else if (pageName === 'read') {
-                displayEl.src = 'read.png';
-                actionEl.style.display = 'none';
-            } else if (pageName === 'assessment') {
-                displayEl.src = 'test-assessment1.png';
-                actionEl.style.display = 'none';
-            } else if (pageName === 'profile') {
-                displayEl.src = 'profile.png';
-                actionEl.style.display = 'none';
+        // Triggers the hidden file input explorer window when clicked
+        function triggerBrowse() {
+            fileInput.click();
+        }
+
+        // Catch files chosen via the standard system browse window
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelection(e.target.files[0]);
+            }
+        });
+
+        /* Drag and Drop event handlers */
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelection(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Processes and validates the file choice
+        function handleFileSelection(file) {
+            if (file.type === "application/pdf" || file.name.endsWith('.pdf')) {
+                uploadedFile = file;
+                // Display file name to user cleanly
+                statusText.innerText = `Selected: ${file.name}`;
+                statusText.style.color = "#2b3925"; // Change color slightly to pop out
+            } else {
+                alert("Please upload PDF files only.");
+            }
+        }
+
+        // Action when user clicks the "Let's Read!" button
+        function processPdf() {
+            if (!uploadedFile) {
+                alert("Please drop a PDF here or click to browse before continuing.");
+                return;
             }
             
-            // Instantly scrolls back to top when switching views
-            window.scrollTo(0, 0);
+            alert(`Successfully loaded "${uploadedFile.name}"! Preparing line-by-line focus layout...`);
+            // This is where we can link your future reader layout down the line!
         }
     </script>
 
