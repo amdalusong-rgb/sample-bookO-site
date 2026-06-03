@@ -78,77 +78,102 @@
         <div class="btn-lets-read" onclick="navigateToReader()"></div>
     </div>
 
-    <script>
-        // Point PDF.js to its internal worker script asset location
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const statusLabel = document.getElementById('uploadStatus');
-        let extractedSentences = [];
+<script>
+    // Set up worker source path globally
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        // Direct clicking fallback activation trigger
-        dropZone.addEventListener('click', () => fileInput.click());
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const statusLabel = document.getElementById('uploadStatus');
+    let uploadedFile = null;
 
-        fileInput.addEventListener('change', (e) => handleFileSelection(e.target.files[0]));
+    // Handle selection and drag/drop triggers
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
+    });
 
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if(e.dataTransfer.files.length > 0) handleFileSelection(e.dataTransfer.files[0]);
-        });
+    window.addEventListener('dragover', (e) => e.preventDefault());
+    window.addEventListener('drop', (e) => e.preventDefault());
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files.length > 0) handleFileSelection(e.dataTransfer.files[0]);
+    });
 
-        function handleFileSelection(file) {
-            if (!file || file.type !== "application/pdf") {
-                statusLabel.innerText = "Error: Please upload a valid PDF document file.";
-                return;
-            }
-            statusLabel.innerText = "Parsing contents: " + file.name.substring(0, 20) + "...";
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const typedarray = new Uint8Array(e.target.result);
-                
-                // Fire up PDF parsing engine loops
-                pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-                    // Extract text strings from Page 1
-                    return pdf.getPage(1).then(function(page) {
-                        return page.getTextContent().then(function(textContent) {
-                            let rawText = textContent.items.map(item => item.str).join(" ");
-                            
-                            // Split raw document string cleanly into real sentences
-                            let sentences = rawText.match(/[^.!?]+[.!?]+/g) || [rawText];
-                            extractedSentences = sentences.map(s => s.trim()).filter(s => s.length > 3);
-                            
-                            if(extractedSentences.length > 0) {
-                                statusLabel.style.color = "#ffffff";
-                                statusLabel.innerText = "✓ " + file.name.substring(0, 16) + " loaded successfully!";
-                                // Save structured strings into shared browser memory loops
-                                localStorage.setItem("processedPdfText", JSON.stringify(extractedSentences));
-                            } else {
-                                statusLabel.innerText = "Warning: Scanned PDF detected. No readable text tracks found.";
-                                // Fallback standard string backup path
-                                localStorage.setItem("processedPdfText", JSON.stringify(["Could not parse native text.", "Please try an essay or document file instead!"]));
-                            }
-                        });
+    function handleFileSelection(file) {
+        if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+            alert("Please upload a valid PDF document file.");
+            return;
+        }
+        uploadedFile = file;
+        
+        // Visual indicator that file was accepted by the UI layer
+        if(statusLabel) {
+            statusLabel.innerText = "✓ " + file.name.substring(0, 15) + "... loaded!";
+            statusLabel.style.color = "#ffffff";
+        }
+    }
+
+    // THE DEFINITIVE PARSER ENGINE
+    function navigateToReader() {
+        if (!uploadedFile) {
+            alert("Please choose or drop a PDF file first!");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const typedarray = new Uint8Array(e.target.result);
+
+            pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                // Read Page 1 
+                return pdf.getPage(1).then(function(page) {
+                    return page.getTextContent().then(function(textContent) {
+                        
+                        // Extracting words cleanly while inserting proper spacing spaces
+                        let rawText = textContent.items
+                            .map(item => item.str)
+                            .join(" ")
+                            .replace(/\s+/g, ' ')
+                            .trim();
+
+                        console.log("Raw Text Extracted:", rawText);
+
+                        // Split sentences by checking for periods, question marks, or exclamation points followed by spaces
+                        let sentencesArray = rawText.match(/[^.!?]+[.!?]+(\s|$)/g);
+
+                        // If regex splits nicely, clean up whitespace. If not, split manually by period.
+                        if (sentencesArray && sentencesArray.length > 0) {
+                            sentencesArray = sentencesArray.map(s => s.trim()).filter(s => s.length > 2);
+                        } else if (rawText.length > 0) {
+                            sentencesArray = rawText.split('.').map(s => s.trim() + ".").filter(s => s.length > 2);
+                        }
+
+                        // Final check: If text exists, store it securely in JSON string array
+                        if (sentencesArray && sentencesArray.length > 0) {
+                            localStorage.setItem("processedPdfText", JSON.stringify(sentencesArray));
+                            window.location.href = "read.html";
+                        } else {
+                            // If the PDF is completely blank or an un-scannable image block, create recognizable dynamic text
+                            let simulatedText = [
+                                `Document "${uploadedFile.name}" successfully linked to reader!`,
+                                "This page appears to be a scanned image flyer without a native selectable text layer."
+                            ];
+                            localStorage.setItem("processedPdfText", JSON.stringify(simulatedText));
+                            window.location.href = "read.html";
+                        }
                     });
-                }).catch(err => {
-                    console.error(err);
-                    statusLabel.innerText = "Parser engine error reading file structure.";
                 });
-            };
-            reader.readAsArrayBuffer(file);
-        }
+            }).catch(function(error) {
+                console.error("PDF extraction crashed: ", error);
+                alert("Error parsing this file type. Please try an academic text document.");
+            });
+        };
 
-        function navigateToReader() {
-            if (!localStorage.getItem("processedPdfText")) {
-                alert("Please drop or upload a textbook or document PDF file first!");
-                return;
-            }
-            window.location.href = 'read.html';
-        }
-    </script>
+        reader.readAsArrayBuffer(uploadedFile);
+    }
+</script>
 </body>
 </html>
