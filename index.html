@@ -5,31 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bookO</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             margin: 0;
             padding: 0;
-            background-color: #2b3925; /* Matches your olive green theme color */
+            background-color: #2b3925; /* Matches your background green */
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            min-height: 100vh;
         }
-        .page-container {
+        .wrapper {
+            position: relative;
             width: 100%;
-            max-width: 1200px; /* Limits scale size for large desktop monitors */
-            display: block;
-            margin: 0 auto;
+            max-width: 1200px; /* Limits size nicely on desktop */
         }
         .web-page {
             width: 100%;
             height: auto;
             display: block;
         }
+        /* This is the invisible button area mapped over the login graphic */
+        .login-hotspot {
+            position: absolute;
+            bottom: 12%;      /* Positioned over the brown Log In button */
+            left: 18%;        /* Adjusted to align with the button layout */
+            width: 15%;       /* Width of the clickable target area */
+            height: 6%;       /* Height of the clickable target area */
+            cursor: pointer;
+            background-color: rgba(255, 0, 0, 0); /* Completely transparent */
+        }
     </style>
 </head>
 <body>
 
-    <div class="page-container">
+    <div class="wrapper">
         <img src="login.png" alt="Login Page" class="web-page">
+        
+        <a href="home.html" class="login-hotspot"></a>
     </div>
 
 </body>
