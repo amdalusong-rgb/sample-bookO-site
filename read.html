@@ -115,7 +115,7 @@
 <body>
 
     <div class="wrapper">
-        <img id="readerBg" src="read.png" alt="bookO Reader Frame Layout" class="web-page">
+        <img id="readerBg" src="readOpenDyslexic.png" alt="bookO Reader Frame Layout" class="web-page">
 
         <div class="reader-nav-home" onclick="window.location.href='home.html'"></div>
         <input type="checkbox" id="toggleDyslexia" class="dyslexia-switch-overlay">
@@ -183,7 +183,7 @@
             if (dyslexicToggle) dyslexicToggle.checked = true;
         } else {
             document.body.classList.remove('dyslexic-font');
-            if (backgroundPageImg) backgroundPageImg.src = 'read.png';
+            if (backgroundPageImg) backgroundPageImg.src = 'readOpenDyslexic.png';
             if (dyslexicToggle) dyslexicToggle.checked = false;
         }
 
