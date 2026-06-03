@@ -22,51 +22,83 @@
         .btn-home { left: 42.5%; width: 7.5%; }
         .btn-read { left: 51.0%; width: 6.5%; }
 
-        /* FIX 1: Expanded Drop Zone
-           We slightly increase the height to 22% so that both the clickable brown button area 
-           and the text that appears beneath it fit perfectly inside the active layout space.
-        */
+        /* Drop Zone - Framed tightly over the brown upload dashed oval container */
         .drop-zone {
             position: absolute;
-            top: 54%; left: 71.5%;
-            width: 14%; height: 22%;
-            border: 2px dashed transparent;
-            border-radius: 20px;
+            top: 54.8%; left: 71.9%;
+            width: 13.5%; height: 11.5%;
+            border-radius: 25px;
             cursor: pointer;
             z-index: 15;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Forces content to flow naturally from top to bottom */
-            padding-top: 5px;
+            justify-content: center;
+            overflow: hidden;
         }
-        .drop-zone.dragover { border-color: #7a9a60; background-color: rgba(122, 154, 96, 0.15); }
+        .drop-zone.dragover { background-color: rgba(255, 255, 255, 0.15); }
         
-        /* Action Button */
-        .btn-lets-read {
-            position: absolute;
-            top: 92.5%; left: 71.8%;
-            width: 13.5%; height: 4%;
-            cursor: pointer;
-            z-index: 20;
-            background-color: rgba(0,0,0,0);
+        /* The Brown Pill UI Box that populates inside the container upon upload */
+        .file-pill-container {
+            display: none; /* Hidden until file is uploaded */
+            width: 100%;
+            height: 100%;
+            background-color: #5c2c16; /* Seamless blend match for your background asset */
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 12px;
+            gap: 10px;
         }
 
-        /* FIX 2: Native Flex Status Label
-           By removing "position: absolute", "top", and "left", the text stays locked in the center column.
-           Adding a micro margin drops it cleanly below the background graphic's brown circle button.
-        */
-        #uploadStatus {
-            margin-top: 62px; /* Pushes the text perfectly down beneath the graphic asset's brown button */
-            width: 100%;
-            font-size: 0.68rem;
+        /* Pure CSS Custom File Thumbnail Icon */
+        .file-icon {
+            width: 24px;
+            height: 30px;
+            background-color: #fff8eb;
+            border-radius: 4px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        /* Top right page dog-ear corner fold effect */
+        .file-icon::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 8px; height: 8px;
+            background-color: #ddcfba;
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Meta details wrapper */
+        .file-meta {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+            text-align: left;
+        }
+        .file-name {
+            color: #fcead2;
+            font-size: 0.65rem;
             font-weight: 700;
-            color: #d1e2c4; /* Soft signature tint color to match your original asset style */
-            text-align: center;
-            z-index: 12;
-            word-wrap: break-word;
-            padding: 0 4px;
-            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-size {
+            color: #c99b77;
+            font-size: 0.55rem;
+            font-weight: 500;
+            margin-top: 1px;
+        }
+
+        /* "Let's Read" Button - Shifted up to securely frame the golden pill button asset */
+        .btn-lets-read {
+            position: absolute;
+            top: 77.5%; left: 71.5%;
+            width: 14.2%; height: 4.5%;
+            cursor: pointer;
+            z-index: 20;
+            background-color: rgba(0,0,0,0); /* Transparent hotspot layer over graphic asset */
         }
     </style>
 </head>
@@ -80,13 +112,36 @@
 
         <div id="dropZone" class="drop-zone">
             <input type="file" id="fileInput" accept=".pdf" style="display: none;">
-            <div id="uploadStatus">Ready for your PDF file...</div>
+            
+            <div id="filePill" class="file-pill-container">
+                <div class="file-icon"></div>
+                <div class="file-meta">
+                    <div id="pillFileName" class="file-name">Document.pdf</div>
+                    <div id="pillFileSize" class="file-size">0.0 KB</div>
+                </div>
+            </div>
         </div>
 
         <div class="btn-lets-read" onclick="navigateToReader()"></div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-
 <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const filePill = document.getElementById('filePill');
+    const pillFileName = document.getElementById('pillFileName');
+    const pillFileSize = document.getElementById('pillFileSize');
+    let uploadedFile = null;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
+    });
+
+    window.addEventListener('dragover', (e) => e.preventDefault());
+    window.addEventListener('drop', (e) => e.preventDefault());
+    
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
+    dropZone.addEventListener
