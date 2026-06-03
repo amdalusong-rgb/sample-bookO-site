@@ -30,80 +30,70 @@
             display: block;
         }
 
-        /* Hidden standard file input */
         #fileInput {
             display: none;
         }
 
-        /* Interactive Drag & Drop Area Overlay */
+        /* TARGET 1: "Drop your PDF here" Container 
+           Temporarily red so you can see the placement!
+        */
         .drop-zone-hotspot {
             position: absolute;
-            top: 52.5%;
-            left: 70.8%;
-            width: 11.5%;
-            height: 7.2%;
-            border-radius: 25px;
-            cursor: pointer;
-            background-color: rgba(255, 0, 0, 0); /* Invisible by default */
-            transition: background-color 0.2s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Visual indicator when a file is hovering over the area */
-        .drop-zone-hotspot.dragover {
-            background-color: rgba(109, 83, 57, 0.3); /* Subtle theme-brown highlight */
-            border: 2px dashed #6d5339;
-        }
-
-        /* Feedback text overlay showing uploaded file name safely beneath the area */
-        .file-status-text {
-            position: absolute;
-            top: 67.5%;
-            left: 67.0%;
-            width: 19.0%;
-            text-align: center;
-            font-size: clamp(10px, 0.9vw, 13px);
-            color: #6d5339;
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            pointer-events: none;
-        }
-
-        /* "Let's Read!" Action Button Hotspot */
-        .read-btn-hotspot {
-            position: absolute;
-            top: 69.2%;
-            left: 70.8%;
-            width: 11.5%;
-            height: 3.2%;
+            top: 45.0%;               /* Shifted up to sit over the big drop card */
+            left: 56.5%;              /* Positioned over the right panel card area */
+            width: 37.5%;             /* Stretched to fit the width of the drop container */
+            height: 25.0%;            /* Tall enough to cover the entire dotted box region */
             border-radius: 20px;
             cursor: pointer;
-            background-color: rgba(255, 0, 0, 0); /* Invisible */
+            background-color: rgba(255, 0, 0, 0.4); /* Semi-transparent Red */
+            transition: background-color 0.2s ease;
+        }
+
+        .drop-zone-hotspot.dragover {
+            background-color: rgba(109, 83, 57, 0.6) !important;
+        }
+
+        /* TARGET 2: "Let's Read!" Button Container
+           Temporarily blue so you can see the placement!
+        */
+        .read-btn-hotspot {
+            position: absolute;
+            top: 73.2%;               /* Sitting right under the file box */
+            left: 65.2%;              /* Centered with your tan button graphic */
+            width: 20.0%;             /* Fits width of the tan button */
+            height: 5.5%;             /* Fits height of the tan button */
+            border-radius: 30px;
+            cursor: pointer;
+            background-color: rgba(0, 0, 255, 0.4); /* Semi-transparent Blue */
             border: none;
             padding: 0;
+        }
+
+        /* Text element tracking file attachment name updates */
+        .file-status-text {
+            position: absolute;
+            top: 40.5%;
+            left: 56.5%;
+            width: 37.5%;
+            text-align: center;
+            font-size: clamp(12px, 1.1vw, 16px);
+            color: #ffffff;
+            font-weight: bold;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
-        <!-- Background Graphic Layer -->
-        <img src="home2.png" alt="Home Page" class="web-page">
+        <img src="home.png" alt="Home Page" class="web-page">
 
-        <!-- Hidden Native Upload Element -->
         <input type="file" id="fileInput" accept=".pdf">
 
-        <!-- Active Drag and Drop Area -->
         <div class="drop-zone-hotspot" id="dropZone" onclick="triggerBrowse()"></div>
 
-        <!-- Dynamic Status Display text area -->
         <div class="file-status-text" id="statusText"></div>
 
-        <!-- Form Submission Button trigger area -->
         <button class="read-btn-hotspot" onclick="processPdf()"></button>
     </div>
 
@@ -113,19 +103,16 @@
         const statusText = document.getElementById('statusText');
         let uploadedFile = null;
 
-        // Triggers the hidden file input explorer window when clicked
         function triggerBrowse() {
             fileInput.click();
         }
 
-        // Catch files chosen via the standard system browse window
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 handleFileSelection(e.target.files[0]);
             }
         });
 
-        /* Drag and Drop event handlers */
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('dragover');
@@ -138,33 +125,26 @@
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
-            
             if (e.dataTransfer.files.length > 0) {
                 handleFileSelection(e.dataTransfer.files[0]);
             }
         });
 
-        // Processes and validates the file choice
         function handleFileSelection(file) {
             if (file.type === "application/pdf" || file.name.endsWith('.pdf')) {
                 uploadedFile = file;
-                // Display file name to user cleanly
-                statusText.innerText = `Selected: ${file.name}`;
-                statusText.style.color = "#2b3925"; // Change color slightly to pop out
+                statusText.innerText = `📄 Loaded: ${file.name}`;
             } else {
                 alert("Please upload PDF files only.");
             }
         }
 
-        // Action when user clicks the "Let's Read!" button
         function processPdf() {
             if (!uploadedFile) {
-                alert("Please drop a PDF here or click to browse before continuing.");
+                alert("Please drop a PDF or click the red zone to browse before continuing.");
                 return;
             }
-            
-            alert(`Successfully loaded "${uploadedFile.name}"! Preparing line-by-line focus layout...`);
-            // This is where we can link your future reader layout down the line!
+            alert(`Opening "${uploadedFile.name}" inside your bookO line-focus reader layout loop!`);
         }
     </script>
 
