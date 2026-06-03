@@ -174,76 +174,129 @@
         <button class="custom-read-hotspot" onclick="processPdf()"></button>
     </div>
 
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const dropZone = document.getElementById('dropZone');
-        const fileCard = document.getElementById('fileCard');
-        const cardName = document.getElementById('cardName');
-        const cardSize = document.getElementById('cardSize');
-        let uploadedFile = null;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-        function triggerBrowse() {
-            fileInput.click();
-        }
+<script>
+    // Set up the worker source path for the library immediately
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileSelection(e.target.files[0]);
-            }
-        });
+    // Global variables
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const fileCard = document.getElementById('fileCard');
+    const cardName = document.getElementById('cardName');
+    const cardSize = document.getElementById('cardSize');
+    let uploadedFile = null;
 
-        /* Enable simple Drag & Drop mechanics natively */
-        window.addEventListener('dragover', (e) => e.preventDefault());
-        window.addEventListener('drop', (e) => e.preventDefault());
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (e.dataTransfer.files.length > 0) {
-                handleFileSelection(e.dataTransfer.files[0]);
-            }
-        });
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-        }
-
-        function handleFileSelection(file) {
-            if (file.type === "application/pdf" || file.name.endsWith('.pdf')) {
-                uploadedFile = file;
-                
-                cardName.innerText = file.name;
-                cardSize.innerText = formatBytes(file.size);
-                
-                // Hide default hotspot layer and dynamically show the brown metadata card element
-                dropZone.style.display = 'none';
-                fileCard.style.display = 'flex';
-            } else {
-                alert("Please upload PDF files only.");
-            }
-        }
-
-        function processPdf() {
-    if (!uploadedFile) {
-        alert("Please choose a file first by clicking the Drop PDF oval icon!");
-        return;
+    // Trigger browse file explorer click
+    function triggerBrowse() {
+        fileInput.click();
     }
-    
-    // 1. Simulating extraction of real sentences from your specific uploaded file name
-    const extractedText = `This is the real extracted content from your uploaded document: "${uploadedFile.name}". The system has successfully processed your text lines into the shared memory workspace loops.`;
-    
-    // 2. SAVE the text into the browser's shared memory bank
-    localStorage.setItem("processedPdfText", extractedText);
-    
-    alert(`Opening "${uploadedFile.name}" inside your bookO line-focus reader!`);
-    
-    // 3. Navigate cleanly to your lowercase read page
-    window.location.href = "read.html"; 
-}
-    </script>
+
+    // Handle traditional browse file selection
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFileSelection(e.target.files[0]);
+        }
+    });
+
+    // Enable simple Drag & Drop mechanics natively
+    window.addEventListener('dragover', (e) => e.preventDefault());
+    window.addEventListener('drop', (e) => e.preventDefault());
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files.length > 0) {
+            handleFileSelection(e.dataTransfer.files[0]);
+        }
+    });
+
+    // Helper function to format document memory sizing strings
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    // Unified file validation and UI update logic
+    function handleFileSelection(file) {
+        if (file && (file.type === "application/pdf" || file.name.endsWith('.pdf'))) {
+            uploadedFile = file;
+            
+            cardName.innerText = file.name;
+            cardSize.innerText = formatBytes(file.size);
+            
+            // Hide default upload container visual drop spot, display data card info layout
+            dropZone.style.display = 'none';
+            fileCard.style.display = 'flex';
+        } else {
+            alert("Please upload PDF files only.");
+        }
+    }
+
+    // THE REAL PARSER ENGINE LOOP
+    function processPdf() {
+        if (!uploadedFile) {
+            alert("Please choose a file first by clicking the Drop PDF oval icon!");
+            return;
+        }
+
+        alert(`Reading your live document: "${uploadedFile.name}"... Please click OK to parse text lines.`);
+
+        const reader = new FileReader();
+        
+        // Read the file as an ArrayBuffer array for binary processing
+        reader.onload = function(e) {
+            const typedarray = new Uint8Array(e.target.result);
+
+            // Load the PDF Document data structure
+            pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                let maxPages = pdf.numPages;
+                let countPromises = [];
+
+                // Loop through pages to collect text layers
+                for (let j = 1; j <= maxPages; j++) {
+                    let pagePromise = pdf.getPage(j).then(function(page) {
+                        return page.getTextContent().then(function(textContent) {
+                            return textContent.items.map(item => item.str).join(" ");
+                        });
+                    });
+                    countPromises.push(pagePromise);
+                }
+
+                // Gather all text strings from the promises array
+                return Promise.all(countPromises);
+            }).then(function(pageTexts) {
+                // Combine all pages into one single body text string
+                const fullText = pageTexts.join(" ");
+
+                // Regex engine rule: clean and split text cleanly into separate sentences
+                let sentencesArray = fullText.match(/[^.!?]+[.!?]+(\s|$)/g);
+                
+                // Clean up white spaces on each extracted sentence line item
+                if (sentencesArray) {
+                    sentencesArray = sentencesArray.map(s => s.trim()).filter(s => s.length > 5);
+                } else {
+                    sentencesArray = [fullText]; // Fallback if text doesn't contain clear punctuation
+                }
+
+                // SAVE the real sentence array to the browser's shared storage memory
+                localStorage.setItem("processedPdfText", JSON.stringify(sentencesArray));
+
+                // Redirect automatically straight into your presentation layout workspace!
+                window.location.href = "read.html";
+
+            }).catch(function(error) {
+                console.error("PDF Parsing failed: ", error);
+                alert("Oops! Could not extract text from this specific PDF. Please try a different academic text document.");
+            });
+        };
+
+        reader.readAsArrayBuffer(uploadedFile);
+    }
+</script>
 
 </body>
 </html>
