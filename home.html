@@ -19,12 +19,17 @@
             min-height: 100vh;
             font-family: 'Comfortaa', sans-serif;
         }
-        .wrapper {
+        
+        /* The main interface shell container layout */
+        .dashboard-container {
             position: relative;
             width: 100%;
             max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr;
         }
-        .web-page {
+
+        .background-canvas {
             width: 100%;
             height: auto;
             display: block;
@@ -34,80 +39,160 @@
             display: none;
         }
 
-        /* --------------------------------------------------
-           NAV HEADER HOTSPOTS (Unblocked & Clickable)
-        -------------------------------------------------- */
-        .nav-hotspot {
+        /* FIXED HEADER: Real clickable textual link layout zone overlay */
+        .top-navbar {
             position: absolute;
-            top: 25.0%;
-            height: 4.5%;
-            cursor: pointer;
-            background-color: rgba(0, 255, 0, 0); /* Invisible, green if tested */
-            z-index: 20;
-        }
-        .nav-read { left: 54.0%; width: 6.5%; }
-        .nav-assessment { left: 61.5%; width: 10.0%; }
-        .nav-profile { left: 72.5%; width: 7.5%; }
-
-
-        /* --------------------------------------------------
-           RECALIBRATED FILE UPLOAD CAPSULE (RED)
-        -------------------------------------------------- */
-        .drop-zone-hotspot {
-            position: absolute;
-            top: 55.6%;               /* Locked directly over the dashed oval center */
-            left: 71.3%;              /* Centered over the asset card */
-            width: 13.0%;             /* Perfectly matches the capsule width */
-            height: 11.5%;            /* Perfectly matches the capsule height */
-            border-radius: 40px;      /* Rounded capsule geometry matching the oval */
-            cursor: pointer;
-            background-color: rgba(255, 0, 0, 0.45); /* Semi-transparent Red for easy verification */
-            transition: background-color 0.2s ease;
-            z-index: 10;
-        }
-
-        /* --------------------------------------------------
-           DYNAMIC HTML FILE CARD (Renders on successful upload)
-        -------------------------------------------------- */
-        .dynamic-file-card {
-            position: absolute;
-            top: 55.6%;
-            left: 71.3%;
-            width: 13.0%;
-            height: 11.5%;
-            background-color: #5d432c; /* Matches exact brown palette of design */
-            border-radius: 40px;       /* Clips seamlessly to cover the base oval */
-            display: none;             /* Inactive until selection hook matches */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8%; /* Locks strictly over the header block */
+            display: flex;
+            justify-content: flex-end;
             align-items: center;
-            padding: 0 16px;
-            z-index: 11;
-            pointer-events: auto;      /* Clicking it triggers the input browse selection process */
+            padding-right: 20%;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            color: transparent; /* Invisible but perfectly takes up text space over graphic */
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 10px 20px;
             cursor: pointer;
         }
 
-        .file-icon {
+        /* FIXED INTERACTIVE AREA: Locked container box on the right panel grid */
+        .interactive-panel {
+            position: absolute;
+            top: 35%;
+            right: 6.5%;
+            width: 17%;
+            height: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 50;
+        }
+
+        /* The Oval Upload Trigger Asset Box Frame area */
+        .upload-capsule {
+            width: 100%;
+            height: 40%;
+            border-radius: 40px;
+            cursor: pointer;
+            background-color: rgba(255, 0, 0, 0.3); /* Transparent Red to see placement */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .upload-capsule:hover {
+            transform: scale(1.03);
+        }
+
+        /* Dynamic Rendered Asset File UI component box block */
+        .file-card-active {
+            width: 100%;
+            height: 100%;
+            background-color: #5d432c;
+            border-radius: 35px;
+            display: none;
+            align-items: center;
+            padding: 0 15px;
+            color: #f3edd7;
+        }
+
+        .file-mini-icon {
             width: 20px;
-            height: 25px;
+            height: 26px;
             background-color: #f3edd7;
             border-radius: 3px;
-            position: relative;
             margin-right: 8px;
             flex-shrink: 0;
         }
-        .file-icon::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 7px;
-            height: 7px;
-            background-color: #5d432c;
-            border-bottom-left-radius: 3px;
-        }
 
-        .file-info-block {
+        .file-meta-data {
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            color: #f3edd7;
-            text-align: left;
+        }
+
+        .meta-title {
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+        }
+
+        .meta-size {
+            font-size: 9px;
+            color: #c9b39c;
+            margin: 2px 0 0 0;
+        }
+
+        /* The "Let's Read" submission trigger asset area box layout */
+        .action-read-button {
+            width: 85%;
+            height: 15%;
+            border-radius: 25px;
+            background-color: rgba(147, 112, 219, 0.4); /* Transparent Purple to verify position */
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .action-read-button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <img src="home.png" alt="Dashboard" class="background-canvas">
+
+        <div class="top-navbar">
+            <a class="nav-item" onclick="alert('Read Tab Clicked!')">Read</a>
+            <a class="nav-item" onclick="alert('Assessment Tab Clicked!')">Assessment</a>
+            <a class="nav-item" onclick="alert('Profile Tab Clicked!')">Profile</a>
+        </div>
+
+        <div class="interactive-panel">
+            
+            <input type="file" id="fileInput" accept=".pdf">
+
+            <div class="upload-capsule" id="dropZone" onclick="triggerBrowse()">
+                <div class="file-card-active" id="fileCard">
+                    <div class="file-mini-icon"></div>
+                    <div class="file-meta-data">
+                        <p class="meta-title" id="cardName">Document.pdf</p>
+                        <p class="meta-size" id="cardSize">0.0 KB</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="action-read-button" onclick="processPdf()"></button>
+            
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileCard = document.getElementById('fileCard');
+        const cardName = document.getElementById('cardName');
+        const cardSize = document.getElementById('cardSize');
+        let uploadedFile = null;
+
+        function triggerBrowse() {
+            fileInput.click();
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelection(e.target.files
