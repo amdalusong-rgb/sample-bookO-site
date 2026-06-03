@@ -14,7 +14,7 @@
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; font-family: 'Comfortaa', sans-serif;
         }
-        .wrapper { position: relative; width: 100%; max-width: 1000px; margin: auto; }
+        .wrapper { position: relative; width: 100%; max-width: 10000px; max-width: 1000px; margin: auto; }
         .web-page { width: 100%; height: auto; display: block; }
 
         /* Navigation Hotspots */
@@ -48,17 +48,24 @@
             background-color: rgba(0,0,0,0);
         }
 
-        /* Status Label indicator overlay */
+        /* THE STATUS MASK COVER FIX:
+           This element stays hidden until a file loads. When active, it features a solid 
+           background color to block out the old embedded text drawn on the canvas!
+        */
         #uploadStatus {
             position: absolute;
-            top: 73%; left: 70%;
+            top: 72.5%; left: 70%;
             width: 17%;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            color: #d1e2c4;
+            color: #ffffff;
             text-align: center;
             z-index: 12;
             word-wrap: break-word;
+            display: none; /* Initially hidden to allow asset instructions to display clearly */
+            background-color: #2b3925; /* Matches layout green color block exactly */
+            padding: 8px;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -81,7 +88,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
 <script>
-    // Set up worker source path globally
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
     const dropZone = document.getElementById('dropZone');
@@ -89,7 +95,6 @@
     const statusLabel = document.getElementById('uploadStatus');
     let uploadedFile = null;
 
-    // Handle selection and drag/drop triggers
     dropZone.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
@@ -109,14 +114,14 @@
         }
         uploadedFile = file;
         
-        // Visual indicator that file was accepted by the UI layer
         if(statusLabel) {
+            // Reveal the masking box element over the canvas text
+            statusLabel.style.display = "block";
             statusLabel.innerText = "✓ " + file.name.substring(0, 15) + "... loaded!";
             statusLabel.style.color = "#ffffff";
         }
     }
 
-    // THE DEFINITIVE PARSER ENGINE
     function navigateToReader() {
         if (!uploadedFile) {
             alert("Please choose or drop a PDF file first!");
@@ -128,11 +133,9 @@
             const typedarray = new Uint8Array(e.target.result);
 
             pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-                // Read Page 1 
                 return pdf.getPage(1).then(function(page) {
                     return page.getTextContent().then(function(textContent) {
                         
-                        // Extracting words cleanly while inserting proper spacing spaces
                         let rawText = textContent.items
                             .map(item => item.str)
                             .join(" ")
@@ -141,22 +144,18 @@
 
                         console.log("Raw Text Extracted:", rawText);
 
-                        // Split sentences by checking for periods, question marks, or exclamation points followed by spaces
                         let sentencesArray = rawText.match(/[^.!?]+[.!?]+(\s|$)/g);
 
-                        // If regex splits nicely, clean up whitespace. If not, split manually by period.
                         if (sentencesArray && sentencesArray.length > 0) {
                             sentencesArray = sentencesArray.map(s => s.trim()).filter(s => s.length > 2);
                         } else if (rawText.length > 0) {
                             sentencesArray = rawText.split('.').map(s => s.trim() + ".").filter(s => s.length > 2);
                         }
 
-                        // Final check: If text exists, store it securely in JSON string array
                         if (sentencesArray && sentencesArray.length > 0) {
                             localStorage.setItem("processedPdfText", JSON.stringify(sentencesArray));
                             window.location.href = "read.html";
                         } else {
-                            // If the PDF is completely blank or an un-scannable image block, create recognizable dynamic text
                             let simulatedText = [
                                 `Document "${uploadedFile.name}" successfully linked to reader!`,
                                 "This page appears to be a scanned image flyer without a native selectable text layer."
