@@ -30,29 +30,30 @@
             display: block;
         }
         
-        /* Adjusted positioning rules to cleanly fit the design text */
+        /* Master input box alignment system */
         .login-input {
             position: absolute;
-            left: 23.5%;              /* Pushed further right past the background labels */
-            width: 12.5%;             /* Constrained so text stays clear of the right-side icons */
-            height: 4.0%;             /* Slightly shorter vertical target to sit centered in the capsule */
+            left: 19.3%;              /* Aligns perfectly with the left edge of the capsule graphic */
+            width: 21.2%;             /* Spans the entire width of the capsule box */
+            height: 4.8%;             /* Matches capsule vertical thickness */
             background: transparent;
             border: none;
             outline: none;
             font-family: 'Comfortaa', sans-serif;
-            font-size: clamp(10px, 1.0vw, 13px); /* Slightly downsized to fit the scale perfectly */
-            color: #6d5339;           /* Clean theme brown matching your graphic elements */
-            padding: 0;
-            display: flex;
-            align-items: center;      /* Vertically aligns text in the middle of the input space */
+            font-size: clamp(10px, 1.0vw, 14px);
+            color: #6d5339;           /* Matches the aesthetic brown theme color */
+            
+            /* CRITICAL FIXES: Spacing text cleanly away from background graphic labels */
+            padding-left: 58px;       /* Pushes typed text right past the Canva "Email/Password" labels */
+            padding-top: 2px;         /* Nudges text slightly downward into the vertical center */
         }
         
         .email-field {
-            top: 53.4%;               /* Shifted up to clear the bottom line */
+            top: 53.3%;
         }
         
         .password-field {
-            top: 62.2%;               /* Shifted up to sit centered over the password field box */
+            top: 62.1%;
             letter-spacing: 2px;
         }
 
