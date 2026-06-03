@@ -12,7 +12,25 @@
             background-color: #1c2619;
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; font-family: 'Comfortaa', sans-serif;
+            transition: font-family 0.2s ease;
         }
+        
+        /* OPTIONAL: Imports your target font style rules safely */
+        @font-face {
+            font-family: 'OpenDyslexic';
+            src: url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/fonts/OpenDyslexic-Regular.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Rule to apply OpenDyslexic universally when toggled active */
+        body.dyslexic-font, 
+        body.dyslexic-font .focus-box-primary,
+        body.dyslexic-font .focus-box-secondary,
+        body.dyslexic-font .reading-line-item {
+            font-family: 'OpenDyslexic', 'Comfortaa', sans-serif !important;
+        }
+
         .wrapper { position: relative; width: 100%; max-width: 1000px; margin: auto; }
         .web-page { width: 100%; height: auto; display: block; }
 
@@ -79,7 +97,7 @@
 <body>
 
     <div class="wrapper">
-        <img src="read.png" alt="bookO Reader Frame Layout" class="web-page">
+        <img id="readerBg" src="read.png" alt="bookO Reader Frame Layout" class="web-page">
 
         <div class="sheet-container">
             <div id="sentenceBox1" class="focus-box-primary">Loading your academic document text track...</div>
@@ -93,11 +111,16 @@
         const box1 = document.getElementById("sentenceBox1");
         const box2 = document.getElementById("sentenceBox2");
         const remainderContainer = document.getElementById("remainingTextBlock");
+        const backgroundPageImg = document.getElementById("readerBg");
+        
+        // Find checkbox switch targets safely
+        const dyslexicToggle = document.getElementById("toggleDyslexia") || document.querySelector("input[type='checkbox']");
 
         box1.innerText = "";
         box2.innerText = "";
         remainderContainer.innerHTML = "";
 
+        // 1. Render Parsed Text Sequences Array Channel
         let storedData = localStorage.getItem("processedPdfText");
         let sentences = [];
 
@@ -116,7 +139,6 @@
             ];
         }
 
-        // Output parsing stream content values row-by-row
         if (sentences.length > 0) box1.innerText = sentences[0];
         if (sentences.length > 1) {
             box2.innerText = sentences[1];
@@ -125,7 +147,6 @@
             box2.style.display = "none";
         }
 
-        // Appends remaining document text chunks line-by-line while maintaining left and right sheet boundaries
         if (sentences.length > 2) {
             for (let i = 2; i < sentences.length; i++) {
                 const lineElement = document.createElement("div");
@@ -136,34 +157,33 @@
         }
 
         // =========================================================================
-        // --- DYNAMIC BACKGROUND & FONT TOGGLE LOGIC ---
+        // --- FIXED: LOAD STATE & INITIALIZE BACKGROUND ON STARTUP ---
         // =========================================================================
         
-        // 1. Locate the OpenDyslexic switch input. 
-        // Note: Change 'toggleDyslexia' below if your HTML input uses a different ID!
-        const dyslexicToggle = document.getElementById("toggleDyslexia") || document.querySelector("input[type='checkbox']");
-        
-        // 2. Locate the main graphic element holding the read.png template layout
-        const backgroundPageImg = document.querySelector(".web-page");
+        // Checks if OpenDyslexic setting was saved previously
+        let isDyslexicModeActive = localStorage.getItem("dyslexicModeEnabled") === "true";
 
+        if (isDyslexicModeActive) {
+            document.body.classList.add('dyslexic-font');
+            if (backgroundPageImg) backgroundPageImg.src = 'readOpenDyslexic.png';
+            if (dyslexicToggle) dyslexicToggle.checked = true;
+        } else {
+            document.body.classList.remove('dyslexic-font');
+            if (backgroundPageImg) backgroundPageImg.src = 'read.png';
+            if (dyslexicToggle) dyslexicToggle.checked = false;
+        }
+
+        // --- TRACK DYNAMIC USER MANIPULATIONS IN REALTIME ---
         if (dyslexicToggle) {
             dyslexicToggle.addEventListener('change', () => {
                 if (dyslexicToggle.checked) {
-                    // Activate custom font readability class on the body
                     document.body.classList.add('dyslexic-font');
-                    
-                    // Seamlessly replace template with the completely blank white canvas
-                    if (backgroundPageImg) {
-                        backgroundPageImg.src = 'readOpenDyslexic.png';
-                    }
+                    if (backgroundPageImg) backgroundPageImg.src = 'readOpenDyslexic.png';
+                    localStorage.setItem("dyslexicModeEnabled", "true");
                 } else {
-                    // Turn off special font rules
                     document.body.classList.remove('dyslexic-font');
-                    
-                    // Revert layout template back to default
-                    if (backgroundPageImg) {
-                        backgroundPageImg.src = 'read.png';
-                    }
+                    if (backgroundPageImg) backgroundPageImg.src = 'read.png';
+                    localStorage.setItem("dyslexicModeEnabled", "false");
                 }
             });
         }
