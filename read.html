@@ -50,25 +50,25 @@
         /* THE SINGLE MAIN READING ENGINE FLOW CONTAINER */
         .reading-flow-container {
             position: absolute;
-            left: 35.8%;
-            width: 48.5%;
-            top: 27.2%; /* Anchors exactly at the start of your layout asset */
+            left: 36.2%; /* Shifted right slightly for beautiful symmetry */
+            width: 46.5%; /* Narrowed to guarantee text never clips the card boundary edge */
+            top: 27.2%;
             font-size: clamp(0.6rem, 1.1vw, 0.95rem);
             font-weight: 700;
-            line-height: 2.3; /* Dynamically spaces lines to align with your design grid layout */
+            line-height: 2.3; 
             text-align: left;
             z-index: 5;
-            padding: 0 14px;
-            color: rgba(43, 57, 37, 0.35); /* Unhighlighted remaining text lines */
         }
 
         /* Target styles applied dynamically to specific text line tracks */
         .line-track {
-            display: inline;
-            padding: 4px 10px;
+            display: block; /* Ensures each block forms its own full-width focus corridor */
+            width: 100%;
+            padding: 6px 14px;
             border-radius: 6px;
-            -webkit-box-decoration-break: clone;
-            box-decoration-break: clone;
+            white-space: normal; /* Permits text elements to gracefully settle down */
+            word-break: break-word; /* Hard safety line wrap container guard */
+            box-sizing: border-box;
         }
 
         .focus-primary {
@@ -79,6 +79,18 @@
         .focus-secondary {
             background-color: #e3e8e1 !important;
             color: #2b3925 !important;
+            margin-top: 10px; /* Aligns row spacing with your background tracking grid */
+        }
+
+        /* Non-highlighted text lines corridor block */
+        .remaining-line {
+            display: block;
+            width: 100%;
+            padding: 6px 14px;
+            white-space: normal;
+            word-break: break-word;
+            color: rgba(43, 57, 37, 0.35); /* Elegant low-opacity trailing lines */
+            margin-top: 4px;
         }
     </style>
 </head>
