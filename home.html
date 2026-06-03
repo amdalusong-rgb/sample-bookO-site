@@ -26,42 +26,42 @@
             display: block; 
         }
 
-        /* Navigation Links */
+        /* Nav Hotspots */
         .nav-hotspot { position: absolute; top: 4.5%; height: 4.5%; cursor: pointer; z-index: 10; }
         .btn-home { left: 42.5%; width: 7.5%; }
         .btn-read { left: 51.0%; width: 6.5%; }
 
-        /* File Upload Box Target Area */
+        /* The Upload Target Box Area */
         .drop-zone {
             position: absolute;
-            top: 57.0%; left: 71.5%;
-            width: 14.0%; height: 8.5%;
+            top: 57.2%; left: 71.9%;
+            width: 13.5%; height: 8.2%;
             border-radius: 30px;
             cursor: pointer;
             z-index: 15;
         }
 
-        /* FIXED: Solid Brown Mask Covering underlying background texts */
+        /* FIXED: Solid Brown Pill Layout Layer */
         .file-pill-container {
             display: none; 
             width: 100%;
             height: 100%;
-            background-color: #5c2c16 !important; /* Solid brown mask fill color */
-            border-radius: 28px;
+            background-color: #5c2c16 !important; /* Prevents underlying image text bleed-through */
+            border-radius: 30px;
             position: absolute;
             top: 0; left: 0;
             align-items: center;
             justify-content: flex-start;
-            padding: 0 14px;
+            padding: 0 15px;
             gap: 10px;
-            z-index: 20;
-            border: 2px dashed #925338;
+            z-index: 25;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         }
 
-        /* Document Graphic File Icon */
+        /* Graphic Document File Thumbnail */
         .file-icon {
             width: 20px;
-            height: 26px;
+            height: 25px;
             background-color: #fff8eb;
             border-radius: 3px;
             position: relative;
@@ -76,7 +76,7 @@
             border-bottom-left-radius: 3px;
         }
 
-        /* File Metadata Text Layout */
+        /* File Label Metrics Typography */
         .file-meta {
             display: flex;
             flex-direction: column;
@@ -86,39 +86,39 @@
         }
         .file-name {
             color: #fcead2;
-            font-size: 0.60rem;
+            font-size: 0.62rem;
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 85px;
+            max-width: 80px;
         }
         .file-size {
             color: #c99b77;
-            font-size: 0.50rem;
+            font-size: 0.52rem;
             font-weight: 500;
             margin-top: 1px;
         }
 
-        /* FIXED: Aligned Let's Read Button Tracker Layer */
+        /* FIXED: Realigned 'Let's Read' Target Button Area */
         .btn-lets-read {
             position: absolute;
-            top: 80.2%; left: 71.4%;
-            width: 14.3%; height: 5.0%;
+            top: 80.5%; left: 71.4%;
+            width: 14.5%; height: 5.2%;
             cursor: pointer;
-            z-index: 30; /* Stays above image transparent bounds */
-            background-color: rgba(0,0,0,0);
+            z-index: 40; /* Elevated layer depth priority */
+            background-color: rgba(0, 0, 0, 0);
             border-radius: 20px;
         }
         .btn-lets-read:hover {
-            background-color: rgba(255, 255, 255, 0.08);
+            background-color: rgba(255, 255, 255, 0.05);
         }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
-        <img src="home.png" alt="bookO Main Dashboard Layout" class="web-page">
+        <img src="home.png" alt="bookO Layout background" class="web-page">
 
         <div class="nav-hotspot btn-home" onclick="window.location.href='home.html'"></div>
         <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
@@ -149,59 +149,4 @@
     let uploadedFile = null;
 
     dropZone.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
-    });
-
-    window.addEventListener('dragover', (e) => e.preventDefault());
-    window.addEventListener('drop', (e) => e.preventDefault());
-    
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        if (e.dataTransfer.files.length > 0) handleFileSelection(e.dataTransfer.files[0]);
-    });
-
-    function handleFileSelection(file) {
-        if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
-            alert("Please upload a valid PDF document file.");
-            return;
-        }
-        uploadedFile = file;
-        
-        let sizeText = (file.size / 1024).toFixed(1) + " KB";
-        if (file.size > 1048576) {
-            sizeText = (file.size / 1048576).toFixed(1) + " MB";
-        }
-
-        pillFileName.innerText = file.name;
-        pillFileSize.innerText = sizeText;
-        filePill.style.display = 'flex'; // Reveals solid brown display box
-    }
-
-    function navigateToReader() {
-        if (!uploadedFile) {
-            alert("Please choose or drop a PDF file first!");
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const typedarray = new Uint8Array(e.target.result);
-
-            pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-                let maxPages = Math.min(pdf.numPages, 5); // Scans text across initial learning blocks
-                let countPromises = [];
-                
-                for (let i = 1; i <= maxPages; i++) {
-                    countPromises.push(pdf.getPage(i).then(page => {
-                        return page.getTextContent().then(textContent => {
-                            return textContent.items.map(item => item.str).join(" ");
-                        });
-                    }));
-                }
-
-                return Promise.all(countPromises).then(pagesText => {
-                    let rawText = pagesText.join(" ").replace(/\s+/g, ' ').trim();
-                    
-                    // Regex statement cleanly breaks array strings at structural sentence periods
-                    let sentences
+    fileInput.
