@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bookO</title>
+    <!-- Importing a rounded font to closely match your Canva design -->
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -16,7 +18,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: Arial, sans-serif;
+            font-family: 'Comfortaa', 'Quicksand', 'Nunito', sans-serif;
         }
         .wrapper {
             position: relative;
@@ -29,39 +31,40 @@
             display: block;
         }
         
-        /* Real Input Fields styled to sit perfectly over your graphic boxes */
+        /* Fixed and aligned input box settings */
         .login-input {
             position: absolute;
-            left: 23.5%;
-            width: 14%;
-            height: 4.5%;
-            background: transparent; /* Makes the box background transparent */
-            border: none;            /* Removes default borders */
-            outline: none;           /* Removes blue focus ring */
-            font-size: 14px;
-            color: #5d4037;          /* Brown shade matching your design text */
-            padding-left: 5px;
+            left: 20%;               /* Shifted further right to sit inside the capsule shapes */
+            width: 16.5%;            /* Stretched horizontally to fill the text region safely */
+            height: 5.2%;            /* Matched thickness of your entry boxes */
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: inherit;    /* Inherits our clean rounded font styles */
+            font-size: clamp(10px, 1.1vw, 14px); /* Scales font size cleanly dynamically */
+            color: #7c6853;          /* Soft charcoal brown to blend into design text */
         }
         
-        /* Email field precise alignment */
+        /* Precision vertical alignments */
         .email-field {
-            top: 54.8%;
+            top: 53.0%;
         }
         
-        /* Password field precise alignment */
         .password-field {
-            top: 63.6%;
+            top: 61.8%;
         }
 
-        /* Clickable Hotspots */
+        /* Hotspot Elements */
         .google-hotspot, .login-hotspot {
             position: absolute;
             cursor: pointer;
             border-radius: 30px;
-            background-color: rgba(255, 0, 0, 0); /* Invisible */
+            background-color: rgba(255, 0, 0, 0); /* 100% Invisible */
+            border: none;
+            padding: 0;
         }
 
-        /* Google Button Area */
+        /* Continue with Google Area */
         .google-hotspot {
             top: 42.6%;
             left: 19.3%;
@@ -84,20 +87,36 @@
         <!-- Background Graphic Layer -->
         <img src="login.png" alt="Login Page" class="web-page">
         
-        <!-- Interactive Form Elements -->
-        <input type="email" class="login-input email-field" placeholder="Enter your email...">
-        <input type="password" class="login-input password-field" placeholder="••••••••">
+        <!-- Continue with Google Hotspot -->
+        <button class="google-hotspot" onclick="simulateGoogleLogin()"></button>
         
-        <!-- Interactive Hotspots -->
-        <div class="google-hotspot" onclick="simulateGoogleLogin()"></div>
-        <a href="home.html" class="login-hotspot"></a>
+        <!-- Wrapped inside a formal submission form structure -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <!-- Interactive Text Slots -->
+            <input type="email" id="emailInput" class="login-input email-field" required>
+            <input type="password" id="passwordInput" class="login-input password-field" required>
+            
+            <!-- Clicking this brown hotspot triggers form submission validation -->
+            <button type="submit" class="login-hotspot"></button>
+        </form>
     </div>
 
     <script>
+        function handleLogin(event) {
+            // Stops page from performing traditional empty reloads
+            event.preventDefault();
+            
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+
+            // Ensures entry values are valid before executing navigation
+            if (email && password) {
+                window.location.href = "home.html";
+            }
+        }
+
         function simulateGoogleLogin() {
-            // Prompts a simulated Up Mail account sign-in sequence
             alert("Logging in automatically via Google using your UP Mail account (@up.edu.ph)...");
-            // Redirects straight to the dashboard screen after clicking OK
             window.location.href = "home.html";
         }
     </script>
