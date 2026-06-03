@@ -19,109 +19,66 @@
             min-height: 100vh;
             font-family: 'Comfortaa', sans-serif;
         }
-        
-        /* The main interface shell container layout */
-        .dashboard-container {
+        .wrapper {
             position: relative;
             width: 100%;
             max-width: 1200px;
-            display: grid;
-            grid-template-columns: 1fr;
         }
-
-        .background-canvas {
+        .web-page {
             width: 100%;
             height: auto;
             display: block;
         }
-
         #fileInput {
             display: none;
         }
 
-        /* FIXED HEADER: Real clickable textual link layout zone overlay */
-        .top-navbar {
+        /* The real-time dynamic card that will show your filename when uploaded */
+        .dynamic-file-card {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8%; /* Locks strictly over the header block */
-            display: flex;
-            justify-content: flex-end;
+            top: 55.6%;
+            left: 71.3%;
+            width: 13.0%;
+            height: 11.5%;
+            background-color: #5d432c; 
+            border-radius: 40px;       
+            display: none;             /* Starts hidden until file is chosen */
             align-items: center;
-            padding-right: 20%;
-            z-index: 100;
-        }
-        
-        .nav-item {
-            color: transparent; /* Invisible but perfectly takes up text space over graphic */
-            font-size: 16px;
-            font-weight: bold;
-            text-decoration: none;
-            padding: 10px 20px;
+            padding: 0 16px;
+            z-index: 10;
             cursor: pointer;
-        }
-
-        /* FIXED INTERACTIVE AREA: Locked container box on the right panel grid */
-        .interactive-panel {
-            position: absolute;
-            top: 35%;
-            right: 6.5%;
-            width: 17%;
-            height: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 50;
-        }
-
-        /* The Oval Upload Trigger Asset Box Frame area */
-        .upload-capsule {
-            width: 100%;
-            height: 40%;
-            border-radius: 40px;
-            cursor: pointer;
-            background-color: rgba(255, 0, 0, 0.3); /* Transparent Red to see placement */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .upload-capsule:hover {
-            transform: scale(1.03);
-        }
-
-        /* Dynamic Rendered Asset File UI component box block */
-        .file-card-active {
-            width: 100%;
-            height: 100%;
-            background-color: #5d432c;
-            border-radius: 35px;
-            display: none;
-            align-items: center;
-            padding: 0 15px;
             color: #f3edd7;
         }
 
-        .file-mini-icon {
+        .file-icon {
             width: 20px;
-            height: 26px;
+            height: 25px;
             background-color: #f3edd7;
             border-radius: 3px;
+            position: relative;
             margin-right: 8px;
             flex-shrink: 0;
         }
+        .file-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 7px;
+            height: 7px;
+            background-color: #5d432c;
+            border-bottom-left-radius: 3px;
+        }
 
-        .file-meta-data {
+        .file-info-block {
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            text-align: left;
         }
 
-        .meta-title {
-            font-size: 11px;
+        .file-name-text {
+            font-size: clamp(8px, 0.75vw, 11px);
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
@@ -129,60 +86,40 @@
             margin: 0;
         }
 
-        .meta-size {
-            font-size: 9px;
+        .file-size-text {
+            font-size: clamp(7px, 0.65vw, 9px);
             color: #c9b39c;
             margin: 2px 0 0 0;
-        }
-
-        /* The "Let's Read" submission trigger asset area box layout */
-        .action-read-button {
-            width: 85%;
-            height: 15%;
-            border-radius: 25px;
-            background-color: rgba(147, 112, 219, 0.4); /* Transparent Purple to verify position */
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .action-read-button:hover {
-            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-container">
-        <img src="home.png" alt="Dashboard" class="background-canvas">
+    <div class="wrapper">
+        <img src="home.png" alt="Home Page" class="web-page" usemap="#home-map">
 
-        <div class="top-navbar">
-            <a class="nav-item" onclick="alert('Read Tab Clicked!')">Read</a>
-            <a class="nav-item" onclick="alert('Assessment Tab Clicked!')">Assessment</a>
-            <a class="nav-item" onclick="alert('Profile Tab Clicked!')">Profile</a>
-        </div>
+        <input type="file" id="fileInput" accept=".pdf">
 
-        <div class="interactive-panel">
+        <map name="home-map">
+            <area shape="rect" coords="640,20,720,60" alt="Read" href="#" onclick="alert('Read Tab Clicked!')">
+            <area shape="rect" coords="730,20,860,60" alt="Assessment" href="#" onclick="alert('Assessment Tab Clicked!')">
+            <area shape="rect" coords="870,20,960,60" alt="Profile" href="#" onclick="alert('Profile Tab Clicked!')">
             
-            <input type="file" id="fileInput" accept=".pdf">
+            <area shape="rect" coords="850,380,1010,480" alt="Upload Box" href="#" onclick="triggerBrowse()">
+            
+            <area shape="rect" coords="850,530,1010,580" alt="Let's Read" href="#" onclick="processPdf()">
+        </map>
 
-            <div class="upload-capsule" id="dropZone" onclick="triggerBrowse()">
-                <div class="file-card-active" id="fileCard">
-                    <div class="file-mini-icon"></div>
-                    <div class="file-meta-data">
-                        <p class="meta-title" id="cardName">Document.pdf</p>
-                        <p class="meta-size" id="cardSize">0.0 KB</p>
-                    </div>
-                </div>
+        <div class="dynamic-file-card" id="fileCard" onclick="triggerBrowse()">
+            <div class="file-icon"></div>
+            <div class="file-info-block">
+                <p class="file-name-text" id="cardName">Document.pdf</p>
+                <p class="file-size-text" id="cardSize">0.0 KB</p>
             </div>
-
-            <button class="action-read-button" onclick="processPdf()"></button>
-            
         </div>
     </div>
 
     <script>
-        const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const fileCard = document.getElementById('fileCard');
         const cardName = document.getElementById('cardName');
@@ -195,4 +132,40 @@
 
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
-                handleFileSelection(e.target.files
+                handleFileSelection(e.target.files[0]);
+            }
+        });
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function handleFileSelection(file) {
+            if (file.type === "application/pdf" || file.name.endsWith('.pdf')) {
+                uploadedFile = file;
+                
+                cardName.innerText = file.name;
+                cardSize.innerText = formatBytes(file.size);
+                
+                // Show file card badge directly above your graphic
+                fileCard.style.display = 'flex';
+            } else {
+                alert("Please upload PDF files only.");
+            }
+        }
+
+        function processPdf() {
+            if (!uploadedFile) {
+                alert("Please choose a file first by clicking the Drop PDF oval icon!");
+                return;
+            }
+            alert(`Opening "${uploadedFile.name}" inside your bookO line-focus reader!`);
+        }
+    </script>
+
+</body>
+</html>
