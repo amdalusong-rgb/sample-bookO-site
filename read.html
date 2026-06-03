@@ -76,16 +76,32 @@
         </div>
     </div>
 
+    <div id="sentenceBox1" class="text-display-box" style="top: 8%;">Sentence line 1 will display here...</div>
+    <div id="sentenceBox2" class="text-display-box" style="top: 20%; opacity: 0.5;">Sentence line 2 will display here...</div>
+
     <script>
-        // When the page loads, fetch the stored file data text out of browser storage memory
         window.onload = function() {
-            const savedText = localStorage.getItem("processedPdfText");
-            const outputDiv = document.getElementById("liveTextOutput");
+            // Grab the raw JSON data block string out of storage memory
+            const storedData = localStorage.getItem("processedPdfText");
             
-            if (savedText) {
-                outputDiv.innerText = savedText;
+            const box1 = document.getElementById("sentenceBox1");
+            const box2 = document.getElementById("sentenceBox2");
+
+            if (storedData) {
+                // Parse the JSON array back into live script memory
+                const sentencesArray = JSON.parse(storedData);
+
+                if (sentencesArray && sentencesArray.length > 0) {
+                    // Inject your real document text data cleanly into your UI layout text cards!
+                    box1.innerText = sentencesArray[0]; 
+                    box2.innerText = sentencesArray[1] ? sentencesArray[1] : "...End of Document...";
+                } else {
+                    box1.innerText = "Empty text layers found inside this document file.";
+                    box2.innerText = "";
+                }
             } else {
-                outputDiv.innerText = "No file active. Go back to the dashboard home screen to drop a PDF reader file document first!";
+                box1.innerText = "No document active. Please go back to the home screen and drop a PDF file first!";
+                box2.innerText = "";
             }
         };
     </script>
