@@ -14,54 +14,54 @@
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; font-family: 'Comfortaa', sans-serif;
         }
-        .wrapper { position: relative; width: 100%; max-width: 1000px; margin: auto; }
-        .web-page { width: 100%; height: auto; display: block; }
+        .wrapper { 
+            position: relative; 
+            width: 100%; 
+            max-width: 1000px; 
+            margin: auto; 
+        }
+        .web-page { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+        }
 
-        /* Navigation Hotspots */
+        /* Navigation Links */
         .nav-hotspot { position: absolute; top: 4.5%; height: 4.5%; cursor: pointer; z-index: 10; }
         .btn-home { left: 42.5%; width: 7.5%; }
         .btn-read { left: 51.0%; width: 6.5%; }
 
-        /* FIXED 1: Precision Drop Zone Coordinates
-           Tightened heights securely over your background layout asset to prevent overlapping 
-           the physical boundaries of the lower Golden Pill clickable target container.
-        */
+        /* File Upload Box Target Area */
         .drop-zone {
             position: absolute;
-            top: 57.0%; left: 71.9%;
-            width: 13.5%; height: 8.5%;
-            border-radius: 28px;
+            top: 57.0%; left: 71.5%;
+            width: 14.0%; height: 8.5%;
+            border-radius: 30px;
             cursor: pointer;
             z-index: 15;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
         }
-        .drop-zone.dragover { background-color: rgba(255, 255, 255, 0.15); }
-        
-        /* FIXED 2: Solid Brown Pill Widget Content Card
-           Changed layout properties to display with full absolute alpha opacity rendering layers.
-        */
+
+        /* FIXED: Solid Brown Mask Covering underlying background texts */
         .file-pill-container {
             display: none; 
             width: 100%;
             height: 100%;
-            background-color: #5c2c16 !important; /* Forces solid dark brown fill overlay coverage */
+            background-color: #5c2c16 !important; /* Solid brown mask fill color */
             border-radius: 28px;
             position: absolute;
             top: 0; left: 0;
             align-items: center;
             justify-content: flex-start;
-            padding: 0 16px;
-            gap: 12px;
-            z-index: 16;
+            padding: 0 14px;
+            gap: 10px;
+            z-index: 20;
+            border: 2px dashed #925338;
         }
 
-        /* Modern CSS Custom File Thumbnail Layout */
+        /* Document Graphic File Icon */
         .file-icon {
-            width: 22px;
-            height: 28px;
+            width: 20px;
+            height: 26px;
             background-color: #fff8eb;
             border-radius: 3px;
             position: relative;
@@ -71,12 +71,12 @@
             content: '';
             position: absolute;
             top: 0; right: 0;
-            width: 7px; height: 7px;
+            width: 6px; height: 6px;
             background-color: #ddcfba;
             border-bottom-left-radius: 3px;
         }
 
-        /* File Information Typography Adjustments */
+        /* File Metadata Text Layout */
         .file-meta {
             display: flex;
             flex-direction: column;
@@ -86,33 +86,122 @@
         }
         .file-name {
             color: #fcead2;
-            font-size: 0.62rem;
+            font-size: 0.60rem;
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* Keeps long titles neatly clipped into "..." format */
-            max-width: 80px;
+            text-overflow: ellipsis;
+            max-width: 85px;
         }
         .file-size {
             color: #c99b77;
-            font-size: 0.52rem;
+            font-size: 0.50rem;
             font-weight: 500;
             margin-top: 1px;
         }
 
-        /* FIXED 3: Dominant Click Layer For "Let's Read" Button
-           Elevated z-index values to stack completely free of bounding boxes.
-        */
+        /* FIXED: Aligned Let's Read Button Tracker Layer */
         .btn-lets-read {
             position: absolute;
             top: 80.2%; left: 71.4%;
             width: 14.3%; height: 5.0%;
             cursor: pointer;
-            z-index: 30; /* Higher priority execution layer guarantees click registers */
+            z-index: 30; /* Stays above image transparent bounds */
             background-color: rgba(0,0,0,0);
+            border-radius: 20px;
+        }
+        .btn-lets-read:hover {
+            background-color: rgba(255, 255, 255, 0.08);
         }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
+        <img src="home.png" alt="bookO Main Dashboard Layout" class="web-page">
+
+        <div class="nav-hotspot btn-home" onclick="window.location.href='home.html'"></div>
+        <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
+
+        <div id="dropZone" class="drop-zone">
+            <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+            
+            <div id="filePill" class="file-pill-container">
+                <div class="file-icon"></div>
+                <div class="file-meta">
+                    <div id="pillFileName" class="file-name">Document.pdf</div>
+                    <div id="pillFileSize" class="file-size">0.0 KB</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-lets-read" onclick="navigateToReader()"></div>
+    </div>
+
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const filePill = document.getElementById('filePill');
+    const pillFileName = document.getElementById('pillFileName');
+    const pillFileSize = document.getElementById('pillFileSize');
+    let uploadedFile = null;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
+    });
+
+    window.addEventListener('dragover', (e) => e.preventDefault());
+    window.addEventListener('drop', (e) => e.preventDefault());
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files.length > 0) handleFileSelection(e.dataTransfer.files[0]);
+    });
+
+    function handleFileSelection(file) {
+        if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+            alert("Please upload a valid PDF document file.");
+            return;
+        }
+        uploadedFile = file;
+        
+        let sizeText = (file.size / 1024).toFixed(1) + " KB";
+        if (file.size > 1048576) {
+            sizeText = (file.size / 1048576).toFixed(1) + " MB";
+        }
+
+        pillFileName.innerText = file.name;
+        pillFileSize.innerText = sizeText;
+        filePill.style.display = 'flex'; // Reveals solid brown display box
+    }
+
+    function navigateToReader() {
+        if (!uploadedFile) {
+            alert("Please choose or drop a PDF file first!");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const typedarray = new Uint8Array(e.target.result);
+
+            pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                let maxPages = Math.min(pdf.numPages, 5); // Scans text across initial learning blocks
+                let countPromises = [];
+                
+                for (let i = 1; i <= maxPages; i++) {
+                    countPromises.push(pdf.getPage(i).then(page => {
+                        return page.getTextContent().then(textContent => {
+                            return textContent.items.map(item => item.str).join(" ");
+                        });
+                    }));
+                }
+
+                return Promise.all(countPromises).then(pagesText => {
+                    let rawText = pagesText.join(" ").replace(/\s+/g, ' ').trim();
+                    
+                    // Regex statement cleanly breaks array strings at structural sentence periods
+                    let sentences
