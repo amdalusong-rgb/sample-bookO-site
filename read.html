@@ -104,4 +104,21 @@
                 try {
                     const parsed = JSON.parse(storedData);
                     
-                    if (Array.isArray(parsed) && parsed.length > 0)
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        // Display the real first sentence on line 1, and sentence two on line 2!
+                        box1.innerText = parsed[0];
+                        box2.innerText = parsed[1] ? parsed[1] : "...End of text stream content...";
+                    } else {
+                        box1.innerText = "Could not cleanly map sentences. Try another text document.";
+                        box2.innerText = "";
+                    }
+                } catch(e) {
+                    box1.innerText = "Error reading application memory layers.";
+                    box2.innerText = "";
+                }
+            } else {
+                box1.innerText = "No document active. Please go back to Home to drop an academic file.";
+                box2.innerText = "";
+            }
+        };
+    </script>
