@@ -16,19 +16,19 @@
         .wrapper { position: relative; width: 100%; max-width: 1000px; margin: auto; }
         .web-page { width: 100%; height: auto; display: block; }
 
-        /* Document Reading White Sheet Wrapper Container */
+        /* The white text display layout column wrapper box inside the graphic sheet asset boundaries */
         .sheet-container {
             position: absolute;
-            top: 18%; left: 34.5%;
-            width: 53.5%; height: 75%;
+            top: 17.5%; left: 34.2%;
+            width: 53.8%; height: 75.5%;
             background-color: transparent;
             display: flex;
             flex-direction: column;
-            padding: 20px 35px; /* FIXED: Restores clean Left/Right Margins */
+            padding: 24px 32px; /* Restores clean Left/Right Margins */
             overflow-y: auto;
         }
 
-        /* Highlighted Box Focus Display Rows */
+        /* Primary Highlight Target Text Block styling rule definitions */
         .focus-box-primary {
             background-color: #263822;
             color: #ffffff;
@@ -42,6 +42,7 @@
             word-break: break-word;
         }
 
+        /* Secondary Focus Row item text layout specs */
         .focus-box-secondary {
             background-color: #e2e9e0;
             color: #384e33;
@@ -55,22 +56,23 @@
             word-break: break-word;
         }
 
-        /* FIXED: Line-by-Line Document Stream Layout Block */
+        /* Stream Container block formatting definitions */
         .remaining-content-block {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             width: 100%;
         }
 
+        /* Line-by-Line Unhighlighted Flow Runs formatting classes */
         .reading-line-item {
             color: #b0b8ae;
             font-size: 0.85rem;
             line-height: 1.6;
             text-align: left;
             word-break: break-word;
-            padding: 2px 4px;
-            border-bottom: 1px solid #f2f5f1; /* Matches traditional document formatting grids */
+            padding: 4px 6px;
+            border-bottom: 1px solid #eef2ed;
         }
     </style>
 </head>
@@ -81,9 +83,7 @@
 
         <div class="sheet-container">
             <div id="sentenceBox1" class="focus-box-primary">Loading your academic document text track...</div>
-            
             <div id="sentenceBox2" class="focus-box-secondary">Preparing layout engine parsing frames...</div>
-
             <div id="remainingTextBlock" class="remaining-content-block"></div>
         </div>
     </div>
@@ -106,10 +106,9 @@
                 sentences = JSON.parse(storedData);
             }
         } catch (e) {
-            console.error("Error formatting payload array strings:", e);
+            console.error("Error loading payload text arrays:", e);
         }
 
-        // Fallback checks
         if (!sentences || sentences.length === 0) {
             sentences = [
                 "No processing track data layer discovered.",
@@ -117,7 +116,7 @@
             ];
         }
 
-        // Inject active line focus tracks
+        // Output parsing stream content values row-by-row
         if (sentences.length > 0) box1.innerText = sentences[0];
         if (sentences.length > 1) {
             box2.innerText = sentences[1];
@@ -126,7 +125,7 @@
             box2.style.display = "none";
         }
 
-        // FIXED: Maps subsequent items line-by-line while keeping structural sheet margins intact
+        // Appends remaining document text chunks line-by-line while maintaining left and right sheet boundaries
         if (sentences.length > 2) {
             for (let i = 2; i < sentences.length; i++) {
                 const lineElement = document.createElement("div");
