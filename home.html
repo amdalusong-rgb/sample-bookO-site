@@ -1,7 +1,94 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bookO - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0;
+            background-color: #2b3925;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; font-family: 'Comfortaa', sans-serif;
+        }
+        .wrapper { position: relative; width: 100%; max-width: 1000px; margin: auto; }
+        .web-page { width: 100%; height: auto; display: block; }
+
+        /* Navigation Hotspots */
+        .nav-hotspot { position: absolute; top: 4.5%; height: 4.5%; cursor: pointer; z-index: 10; }
+        .btn-home { left: 42.5%; width: 7.5%; }
+        .btn-read { left: 51.0%; width: 6.5%; }
+
+        /* FIX 1: Expanded Drop Zone
+           We slightly increase the height to 22% so that both the clickable brown button area 
+           and the text that appears beneath it fit perfectly inside the active layout space.
+        */
+        .drop-zone {
+            position: absolute;
+            top: 54%; left: 71.5%;
+            width: 14%; height: 22%;
+            border: 2px dashed transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Forces content to flow naturally from top to bottom */
+            padding-top: 5px;
+        }
+        .drop-zone.dragover { border-color: #7a9a60; background-color: rgba(122, 154, 96, 0.15); }
+        
+        /* Action Button */
+        .btn-lets-read {
+            position: absolute;
+            top: 92.5%; left: 71.8%;
+            width: 13.5%; height: 4%;
+            cursor: pointer;
+            z-index: 20;
+            background-color: rgba(0,0,0,0);
+        }
+
+        /* FIX 2: Native Flex Status Label
+           By removing "position: absolute", "top", and "left", the text stays locked in the center column.
+           Adding a micro margin drops it cleanly below the background graphic's brown circle button.
+        */
+        #uploadStatus {
+            margin-top: 62px; /* Pushes the text perfectly down beneath the graphic asset's brown button */
+            width: 100%;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #d1e2c4; /* Soft signature tint color to match your original asset style */
+            text-align: center;
+            z-index: 12;
+            word-wrap: break-word;
+            padding: 0 4px;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <img src="home.png" alt="bookO Main Dashboard Layout" class="web-page">
+
+        <div class="nav-hotspot btn-home" onclick="window.location.href='home.html'"></div>
+        <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
+
+        <div id="dropZone" class="drop-zone">
+            <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+            <div id="uploadStatus">Ready for your PDF file...</div>
+        </div>
+
+        <div class="btn-lets-read" onclick="navigateToReader()"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
 <script>
-    // Set up worker source path globally
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
     const dropZone = document.getElementById('dropZone');
@@ -9,7 +96,6 @@
     const statusLabel = document.getElementById('uploadStatus');
     let uploadedFile = null;
 
-    // Handle selection and drag/drop triggers
     dropZone.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
@@ -17,8 +103,13 @@
 
     window.addEventListener('dragover', (e) => e.preventDefault());
     window.addEventListener('drop', (e) => e.preventDefault());
+    
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    
     dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
+        dropZone.classList.remove('dragover');
         if (e.dataTransfer.files.length > 0) handleFileSelection(e.dataTransfer.files[0]);
     });
 
@@ -29,14 +120,13 @@
         }
         uploadedFile = file;
         
-        // Visual indicator that file was accepted by the UI layer
         if(statusLabel) {
+            // Displays your confirmation text layout securely under the button icon
             statusLabel.innerText = "✓ " + file.name.substring(0, 15) + "... loaded!";
-            statusLabel.style.color = "#ffffff";
+            statusLabel.style.color = "#ffffff"; // Shifts to high contrast bright white upon success
         }
     }
 
-    // THE DEFINITIVE PARSER ENGINE
     function navigateToReader() {
         if (!uploadedFile) {
             alert("Please choose or drop a PDF file first!");
@@ -48,11 +138,9 @@
             const typedarray = new Uint8Array(e.target.result);
 
             pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-                // Read Page 1 
                 return pdf.getPage(1).then(function(page) {
                     return page.getTextContent().then(function(textContent) {
                         
-                        // Extracting words cleanly while inserting proper spacing spaces
                         let rawText = textContent.items
                             .map(item => item.str)
                             .join(" ")
@@ -61,22 +149,18 @@
 
                         console.log("Raw Text Extracted:", rawText);
 
-                        // Split sentences by checking for periods, question marks, or exclamation points followed by spaces
                         let sentencesArray = rawText.match(/[^.!?]+[.!?]+(\s|$)/g);
 
-                        // If regex splits nicely, clean up whitespace. If not, split manually by period.
                         if (sentencesArray && sentencesArray.length > 0) {
                             sentencesArray = sentencesArray.map(s => s.trim()).filter(s => s.length > 2);
                         } else if (rawText.length > 0) {
                             sentencesArray = rawText.split('.').map(s => s.trim() + ".").filter(s => s.length > 2);
                         }
 
-                        // Final check: If text exists, store it securely in JSON string array
                         if (sentencesArray && sentencesArray.length > 0) {
                             localStorage.setItem("processedPdfText", JSON.stringify(sentencesArray));
                             window.location.href = "read.html";
                         } else {
-                            // If the PDF is completely blank or an un-scannable image block, create recognizable dynamic text
                             let simulatedText = [
                                 `Document "${uploadedFile.name}" successfully linked to reader!`,
                                 "This page appears to be a scanned image flyer without a native selectable text layer."
@@ -95,3 +179,5 @@
         reader.readAsArrayBuffer(uploadedFile);
     }
 </script>
+</body>
+</html>
