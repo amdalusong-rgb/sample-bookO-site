@@ -134,6 +134,39 @@
                 remainderContainer.appendChild(lineElement);
             }
         }
+
+        // =========================================================================
+        // --- DYNAMIC BACKGROUND & FONT TOGGLE LOGIC ---
+        // =========================================================================
+        
+        // 1. Locate the OpenDyslexic switch input. 
+        // Note: Change 'toggleDyslexia' below if your HTML input uses a different ID!
+        const dyslexicToggle = document.getElementById("toggleDyslexia") || document.querySelector("input[type='checkbox']");
+        
+        // 2. Locate the main graphic element holding the read.png template layout
+        const backgroundPageImg = document.querySelector(".web-page");
+
+        if (dyslexicToggle) {
+            dyslexicToggle.addEventListener('change', () => {
+                if (dyslexicToggle.checked) {
+                    // Activate custom font readability class on the body
+                    document.body.classList.add('dyslexic-font');
+                    
+                    // Seamlessly replace template with the completely blank white canvas
+                    if (backgroundPageImg) {
+                        backgroundPageImg.src = 'readOpenDyslexic.png';
+                    }
+                } else {
+                    // Turn off special font rules
+                    document.body.classList.remove('dyslexic-font');
+                    
+                    // Revert layout template back to default
+                    if (backgroundPageImg) {
+                        backgroundPageImg.src = 'read.png';
+                    }
+                }
+            });
+        }
     };
 </script>
 </body>
