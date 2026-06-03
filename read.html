@@ -36,13 +36,29 @@
             top: 4.5%;
             height: 4.5%;
             cursor: pointer;
-            background-color: rgba(0, 0, 0, 0); /* 100% Invisible */
+            background-color: rgba(0, 0, 0, 0); 
             z-index: 10;
         }
         .btn-home { left: 44.5%; width: 7.5%; }
         .btn-read { left: 54.0%; width: 6.5%; }
         .btn-assess { left: 61.5%; width: 10.0%; }
         .btn-profile { left: 72.5%; width: 7.5%; }
+
+        /* THE LIVE TEXT CONTAINER BOX LAYER */
+        .text-display-box {
+            position: absolute;
+            top: 52%;  /* Adjust these percentages to place the text right over your image box design layout */
+            left: 55%;
+            width: 40%;
+            transform: translate(-10%, -50%);
+            color: #5d432c; /* Uses your theme's elegant brown text */
+            font-weight: 700;
+            font-size: clamp(1rem, 1.5vw, 1.4rem);
+            line-height: 1.6;
+            z-index: 5;
+            text-align: left;
+            padding-right: 20px;
+        }
     </style>
 </head>
 <body>
@@ -54,7 +70,25 @@
         <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
         <div class="nav-hotspot btn-assess" onclick="alert('Assessment module launching soon!')"></div>
         <div class="nav-hotspot btn-profile" onclick="alert('User profile settings menu loading...')"></div>
+
+        <div id="liveTextOutput" class="text-display-box">
+            Loading your document content...
+        </div>
     </div>
+
+    <script>
+        // When the page loads, fetch the stored file data text out of browser storage memory
+        window.onload = function() {
+            const savedText = localStorage.getItem("processedPdfText");
+            const outputDiv = document.getElementById("liveTextOutput");
+            
+            if (savedText) {
+                outputDiv.innerText = savedText;
+            } else {
+                outputDiv.innerText = "No file active. Go back to the dashboard home screen to drop a PDF reader file document first!";
+            }
+        };
+    </script>
 
 </body>
 </html>
