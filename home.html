@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bookO - Home</title>
+    <title>bookO - Dashboard</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -15,6 +18,7 @@
             min-height: 100vh;
         }
         .wrapper {
+            position: relative;
             width: 100%;
             max-width: 1200px;
         }
@@ -23,13 +27,86 @@
             height: auto;
             display: block;
         }
+
+        /* Nav Bar Hotspot System */
+        .nav-hotspot {
+            position: absolute;
+            top: 23.5%; /* Positioned right over your top navigation bar */
+            height: 5.0%;
+            cursor: pointer;
+            background-color: rgba(255, 0, 0, 0); /* Invisible */
+        }
+
+        /* Individual Nav Button Map Coordinates */
+        .nav-home {
+            left: 44.2%;
+            width: 7.2%;
+        }
+        .nav-read {
+            left: 52.5%;
+            width: 6.8%;
+        }
+        .nav-assessment {
+            left: 60.5%;
+            width: 11.2%;
+        }
+        .nav-profile {
+            left: 72.8%;
+            width: 7.8%;
+        }
+
+        /* Content Action Hotspots (e.g., Let's Read Button / Upload Area) */
+        .upload-hotspot {
+            position: absolute;
+            top: 52.5%;
+            left: 70.8%;
+            width: 12.5%;
+            height: 9.5%;
+            cursor: pointer;
+            border-radius: 50%;
+            background-color: rgba(255, 0, 0, 0);
+        }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
-        <img src="home.png" alt="Home Page" class="web-page">
+        <!-- Dynamic Page Display Image Layer -->
+        <img id="pageDisplay" src="home.png" alt="Dashboard" class="web-page">
+        
+        <!-- Navigation Bar Interactive Grid -->
+        <div class="nav-hotspot nav-home" onclick="switchPage('home')"></div>
+        <div class="nav-hotspot nav-read" onclick="switchPage('read')"></div>
+        <div class="nav-hotspot nav-assessment" onclick="switchPage('assessment')"></div>
+        <div class="nav-hotspot nav-profile" onclick="switchPage('profile')"></div>
+
+        <!-- Interactive Core Layout Feature Hotspot -->
+        <div id="actionFeature" class="upload-hotspot" onclick="switchPage('read')"></div>
     </div>
+
+    <script>
+        function switchPage(pageName) {
+            const displayEl = document.getElementById('pageDisplay');
+            const actionEl = document.getElementById('actionFeature');
+
+            if (pageName === 'home') {
+                displayEl.src = 'home.png';
+                actionEl.style.display = 'block'; // Show drop zone on home screen
+            } else if (pageName === 'read') {
+                displayEl.src = 'read.png';
+                actionEl.style.display = 'none';
+            } else if (pageName === 'assessment') {
+                displayEl.src = 'test-assessment1.png';
+                actionEl.style.display = 'none';
+            } else if (pageName === 'profile') {
+                displayEl.src = 'profile.png';
+                actionEl.style.display = 'none';
+            }
+            
+            // Instantly scrolls back to top when switching views
+            window.scrollTo(0, 0);
+        }
+    </script>
 
 </body>
 </html>
