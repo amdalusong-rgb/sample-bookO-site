@@ -232,6 +232,9 @@
                 return;
             }
             alert(`Opening "${uploadedFile.name}" inside your bookO line-focus reader!`);
+            
+            // NAVIGATION FIX: This tells the browser to immediately load your read page next
+            window.location.href = "read.html"; 
         }
     </script>
 
