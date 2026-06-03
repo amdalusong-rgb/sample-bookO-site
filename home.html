@@ -34,49 +34,64 @@
             display: none;
         }
 
-        /* FIXED ALIGNMENT: Coordinates shifted down to lock precisely onto the upload capsule icon */
+        /* --------------------------------------------------
+           NAV HEADER HOTSPOTS (Unblocked & Clickable)
+        -------------------------------------------------- */
+        .nav-hotspot {
+            position: absolute;
+            top: 25.0%;
+            height: 4.5%;
+            cursor: pointer;
+            background-color: rgba(0, 255, 0, 0); /* Invisible, green if tested */
+            z-index: 20;
+        }
+        .nav-read { left: 54.0%; width: 6.5%; }
+        .nav-assessment { left: 61.5%; width: 10.0%; }
+        .nav-profile { left: 72.5%; width: 7.5%; }
+
+
+        /* --------------------------------------------------
+           RECALIBRATED FILE UPLOAD CAPSULE (RED)
+        -------------------------------------------------- */
         .drop-zone-hotspot {
             position: absolute;
-            top: 52.8%;               /* Shifted down to match the upload box position perfectly */
-            left: 68.6%;              /* Center-aligned over the brown shape */
-            width: 15.5%;             /* Constrained to match the width of the asset element */
-            height: 9.8%;             /* Matches the exact height of the capsule asset */
-            border-radius: 18px;
+            top: 55.6%;               /* Locked directly over the dashed oval center */
+            left: 71.3%;              /* Centered over the asset card */
+            width: 13.0%;             /* Perfectly matches the capsule width */
+            height: 11.5%;            /* Perfectly matches the capsule height */
+            border-radius: 40px;      /* Rounded capsule geometry matching the oval */
             cursor: pointer;
-            background-color: rgba(255, 0, 0, 0); /* 100% Invisible */
-            transition: transform 0.2s ease;
+            background-color: rgba(255, 0, 0, 0.45); /* Semi-transparent Red for easy verification */
+            transition: background-color 0.2s ease;
             z-index: 10;
         }
 
-        .drop-zone-hotspot:hover {
-            transform: scale(1.02);
-        }
-
-        /* Dynamic CSS UI Card Component */
+        /* --------------------------------------------------
+           DYNAMIC HTML FILE CARD (Renders on successful upload)
+        -------------------------------------------------- */
         .dynamic-file-card {
             position: absolute;
-            top: 52.8%;
-            left: 68.6%;
-            width: 15.5%;
-            height: 9.8%;
-            background-color: #5a4531; /* Beautiful dark brown card fill */
-            border-radius: 14px;
-            display: none;             /* Hidden until user uploads a file */
+            top: 55.6%;
+            left: 71.3%;
+            width: 13.0%;
+            height: 11.5%;
+            background-color: #5d432c; /* Matches exact brown palette of design */
+            border-radius: 40px;       /* Clips seamlessly to cover the base oval */
+            display: none;             /* Inactive until selection hook matches */
             align-items: center;
-            padding: 0 12px;
-            z-index: 5;
-            pointer-events: none;      /* Clicks pass straight through to hotspot underneath */
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+            padding: 0 16px;
+            z-index: 11;
+            pointer-events: auto;      /* Clicking it triggers the input browse selection process */
+            cursor: pointer;
         }
 
-        /* Document Vector Icon styling matching your theme */
         .file-icon {
-            width: 24px;
-            height: 30px;
-            background-color: #e6dfd5;
-            border-radius: 4px;
+            width: 20px;
+            height: 25px;
+            background-color: #f3edd7;
+            border-radius: 3px;
             position: relative;
-            margin-right: 10px;
+            margin-right: 8px;
             flex-shrink: 0;
         }
         .file-icon::after {
@@ -84,136 +99,15 @@
             position: absolute;
             top: 0;
             right: 0;
-            width: 8px;
-            height: 8px;
-            background-color: #5a4531;
-            border-bottom-left-radius: 4px;
+            width: 7px;
+            height: 7px;
+            background-color: #5d432c;
+            border-bottom-left-radius: 3px;
         }
 
-        /* Metadata alignment box */
         .file-info-block {
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            color: #e6dfd5;
-        }
-
-        .file-name-text {
-            font-size: clamp(9px, 0.8vw, 12px);
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin: 0 0 2px 0;
-        }
-
-        .file-size-text {
-            font-size: clamp(8px, 0.7vw, 10px);
-            color: #bfaea2;
-            margin: 0;
-        }
-
-        /* "Let's Read!" Action Hotspot */
-        .read-btn-hotspot {
-            position: absolute;
-            top: 77.2%;               /* Moved down dynamically to account for position updates */
-            left: 70.8%;
-            width: 11.2%;
-            height: 3.5%;
-            border-radius: 20px;
-            cursor: pointer;
-            background-color: rgba(255, 0, 0, 0); /* 100% Invisible */
-            border: none;
-            padding: 0;
-            z-index: 10;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="wrapper">
-        <!-- Reverted back to home.png as requested -->
-        <img src="home.png" alt="Home Page" class="web-page">
-
-        <input type="file" id="fileInput" accept=".pdf">
-
-        <!-- Clickable Drop Zone Hotspot Container -->
-        <div class="drop-zone-hotspot" id="dropZone" onclick="triggerBrowse()"></div>
-
-        <!-- Real-Time Dynamic HTML/CSS Upload Information Card -->
-        <div class="dynamic-file-card" id="fileCard">
-            <div class="file-icon"></div>
-            <div class="file-info-block">
-                <p class="file-name-text" id="cardName">Document.pdf</p>
-                <p class="file-size-text" id="cardSize">0.0 KB</p>
-            </div>
-        </div>
-
-        <button class="read-btn-hotspot" onclick="processPdf()"></button>
-    </div>
-
-    <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const fileCard = document.getElementById('fileCard');
-        const cardName = document.getElementById('cardName');
-        const cardSize = document.getElementById('cardSize');
-        let uploadedFile = null;
-
-        function triggerBrowse() {
-            fileInput.click();
-        }
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileSelection(e.target.files[0]);
-            }
-        });
-
-        /* Drag and Drop Events */
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (e.dataTransfer.files.length > 0) {
-                handleFileSelection(e.dataTransfer.files[0]);
-            }
-        });
-
-        // Formats file sizes into human-readable strings
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-        }
-
-        function handleFileSelection(file) {
-            if (file.type === "application/pdf" || file.name.endsWith('.pdf')) {
-                uploadedFile = file;
-                
-                // Inject the actual file metadata into our custom card elements
-                cardName.innerText = file.name;
-                cardSize.innerText = formatBytes(file.size);
-                
-                // Make the dynamic card visible right over home.png
-                fileCard.style.display = 'flex';
-            } else {
-                alert("Please upload PDF files only.");
-            }
-        }
-
-        function processPdf() {
-            if (!uploadedFile) {
-                alert("Please drop a PDF or click the container to select a file.");
-                return;
-            }
-            alert(`Opening "${uploadedFile.name}" (${formatBytes(uploadedFile.size)}) in line-focus mode!`);
-        }
-    </script>
-
-</body>
-</html>
+            color: #f3edd7;
+            text-align: left;
