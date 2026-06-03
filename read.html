@@ -21,7 +21,6 @@
             overflow-x: hidden;
         }
         
-        /* Main responsive wrapper matching your design layout dimensions */
         .wrapper {
             position: relative;
             width: 100%;
@@ -48,35 +47,60 @@
         .btn-assess { left: 59.5%; width: 10.0%; }
         .btn-profile { left: 70.5%; width: 7.5%; }
 
-        /* SENTENCE CORRIDOR FOCUS OVERLAYS */
-        .focus-line {
+        /* SHARED MARGIN ALIGNMENTS FOR EXTRACTED STRINGS */
+        .text-container {
             position: absolute;
-            left: 35.8%; /* Snaps text to the left margin of the blank card container */
-            width: 48.5%; /* Restricts line lengths to keep text within the page margins */
+            left: 35.8%;
+            width: 48.5%;
             font-size: clamp(0.6rem, 1.1vw, 0.95rem);
             font-weight: 700;
             text-align: left;
             z-index: 5;
+            padding: 0 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             display: flex;
             align-items: center;
-            padding: 0 14px;
-            border-radius: 6px;
         }
-        
-        /* Dark tracking bar line */
+
+        /* Dark focus line highlight slot */
         #sentenceBox1 {
-            top: 27.5%; /* Shifted up slightly to perfectly align with the new blank asset spacing */
+            top: 27.5%;
             height: 5.3%;
             background-color: #2b3925; 
             color: #ffffff; 
+            border-radius: 6px;
         }
 
-        /* Soft gray secondary trailing line */
+        /* Light secondary focus highlight slot */
         #sentenceBox2 {
             top: 33.7%;
             height: 4.6%;
             background-color: #e3e8e1; 
             color: #2b3925; 
+            border-radius: 6px;
+        }
+
+        /* Non-highlighted text lines corridor block */
+        .remaining-text-block {
+            position: absolute;
+            left: 35.8%;
+            width: 48.5%;
+            top: 39.5%; /* Positioned directly underneath the second tracking box */
+            font-size: clamp(0.6rem, 1.1vw, 0.95rem);
+            font-weight: 700;
+            line-height: 1.85; 
+            text-align: left;
+            color: rgba(43, 57, 37, 0.35); /* Soft, unhighlighted reading layout font */
+            z-index: 4;
+            padding: 0 14px;
+        }
+        .remaining-line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
         }
     </style>
 </head>
@@ -90,8 +114,10 @@
         <div class="nav-hotspot btn-assess" onclick="alert('Assessment module launching soon!')"></div>
         <div class="nav-hotspot btn-profile" onclick="alert('User profile settings menu loading...')"></div>
 
-        <div id="sentenceBox1" class="focus-line">Reading line text layer track...</div>
-        <div id="sentenceBox2" class="focus-line">Waiting for layout engine parser execution...</div>
+        <div id="sentenceBox1" class="text-container"></div>
+        <div id="sentenceBox2" class="text-container"></div>
+
+        <div id="remainingTextBlock" class="remaining-text-block"></div>
     </div>
 
     <script>
@@ -99,28 +125,79 @@
             const storedData = localStorage.getItem("processedPdfText");
             const box1 = document.getElementById("sentenceBox1");
             const box2 = document.getElementById("sentenceBox2");
+            const remainderContainer = document.getElementById("remainingTextBlock");
 
-            if (storedData) {
-                try {
-                    const parsed = JSON.parse(storedData);
-                    
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        // Display the real first sentence on line 1, and sentence two on line 2!
-                        box1.innerText = parsed[0];
-                        box2.innerText = parsed[1] ? parsed[1] : "...End of text stream content...";
-                    } else {
-                        box1.innerText = "Could not cleanly map sentences. Try another text document.";
-                        box2.innerText = "";
-                    }
-                } catch(e) {
-                    box1.innerText = "Error reading application memory layers.";
-                    box2.innerText = "";
+            if (!storedData) {
+                box1.innerText = "No active document track found. Please return to Home.";
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(storedData);
+                let fullTextCombined = Array.isArray(parsed) ? parsed.join(" ") : storedData;
+
+                // Set up the boundary width to constrain text rows
+                const maxPixelWidth = box1.offsetWidth || 450; 
+                const computedFont = window.getComputedStyle(box1).font || "700 14px Comfortaa";
+
+                // Divide the text block into cleanly structured rows
+                const layoutLines = formatTextIntoLines(fullTextCombined, maxPixelWidth, computedFont);
+
+                // Assign Line 1 to the dark box
+                if (layoutLines.length > 0) {
+                    box1.innerText = layoutLines[0];
                 }
-            } else {
-                box1.innerText = "No document active. Please go back to Home to drop an academic file.";
-                box2.innerText = "";
+
+                // Assign Line 2 to the light box
+                if (layoutLines.length > 1) {
+                    box2.innerText = layoutLines[1];
+                } else {
+                    box2.style.display = "none"; // Hide the box if there's no text for it
+                }
+
+                // Append any remaining lines below without highlights
+                if (layoutLines.length > 2) {
+                    for (let i = 2; i < Math.min(layoutLines.length, 10); i++) {
+                        const lineDiv = document.createElement("div");
+                        lineDiv.className = "remaining-line";
+                        lineDiv.innerText = layoutLines[i];
+                        remainderContainer.appendChild(lineDiv);
+                    }
+                }
+
+            } catch (e) {
+                console.error(e);
+                box1.innerText = "Error parsing text document alignment streams.";
             }
         };
+
+        // Helper function that splits text into individual lines based on container width
+        function formatTextIntoLines(text, maxWidth, font) {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            context.font = font;
+
+            const words = text.split(" ");
+            const lines = [];
+            let currentLine = "";
+
+            for (let i = 0; i < words.length; i++) {
+                let testLine = currentLine + (currentLine ? " " : "") + words[i];
+                let metrics = context.measureText(testLine);
+                
+                if (metrics.width > maxWidth && i > 0) {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+            return lines;
+        }
     </script>
+
 </body>
 </html>
