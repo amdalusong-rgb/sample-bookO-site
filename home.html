@@ -33,19 +33,76 @@
             display: none;
         }
 
-        /* The real-time dynamic card that will show your filename when uploaded */
+        /* ==========================================================================
+           MANUAL INTERACTIVE ALIGNMENT CONFIGURATIONS (Change values here to adjust)
+           ========================================================================== */
+
+        /* NAV HEADER HOTSPOTS (Read, Assessment, Profile) */
+        .header-nav-hotspot {
+            position: absolute;
+            top: 4.8%;                /* Vertically moves all top header links */
+            height: 4.0%;             /* Height of the clickable text space area */
+            cursor: pointer;
+            background-color: rgba(0, 255, 0, 0); /* 100% Invisible */
+            z-index: 10;
+        }
+        .btn-nav-read { left: 54.0%; width: 6.5%; }
+        .btn-nav-assess { left: 61.5%; width: 10.0%; }
+        .btn-nav-profile { left: 72.5%; width: 7.5%; }
+
+        /* OVAL DROP ZONE REGION BUTTON OVERLAY 
+           To change size/position, modify top, left, width, and height values below.
+        */
+        .custom-upload-hotspot {
+            position: absolute;
+            top: 55.4%;               /* Shift UP or DOWN */
+            left: 71.3%;              /* Shift LEFT or RIGHT */
+            width: 13.0%;             /* Make WIDER or NARROWER */
+            height: 11.5%;            /* Make TALLER or SHORTER */
+            border-radius: 40px;      /* Curves the corners into an oval shape capsule */
+            cursor: pointer;
+            
+            /* CHANGE COLOR TRANSPARENCY HERE 
+               Currently set to '0' (Invisible). Change to '0.4' to see it turn red for testing!
+            */
+            background-color: rgba(255, 0, 0, 0); 
+            z-index: 5;
+        }
+
+        /* "LET'S READ!" BASE CTA ACTION TRIGGER BUTTON */
+        .custom-read-hotspot {
+            position: absolute;
+            top: 77.2%;               /* Shift UP or DOWN */
+            left: 71.3%;              /* Shift LEFT or RIGHT */
+            width: 13.0%;             /* Make WIDER or NARROWER */
+            height: 3.2%;             /* Make TALLER or SHORTER */
+            border-radius: 20px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            
+            /* CHANGE COLOR TRANSPARENCY HERE 
+               Currently set to '0' (Invisible). Change to '0.4' to see it turn purple for testing!
+            */
+            background-color: rgba(147, 112, 219, 0); 
+            z-index: 5;
+        }
+
+        /* ==========================================================================
+           DYNAMIC POPUP CARD FOR SELECTED FILE (Matches your design system)
+           ========================================================================== */
         .dynamic-file-card {
             position: absolute;
-            top: 55.6%;
+            top: 55.4%;
             left: 71.3%;
             width: 13.0%;
             height: 11.5%;
             background-color: #5d432c; 
             border-radius: 40px;       
-            display: none;             /* Starts hidden until file is chosen */
+            display: none;             /* Activated via JavaScript on upload validation hook */
             align-items: center;
             padding: 0 16px;
-            z-index: 10;
+            z-index: 6;
             cursor: pointer;
             color: #f3edd7;
         }
@@ -96,19 +153,15 @@
 <body>
 
     <div class="wrapper">
-        <img src="home.png" alt="Home Page" class="web-page" usemap="#home-map">
+        <img src="home.png" alt="Home Page" class="web-page">
 
         <input type="file" id="fileInput" accept=".pdf">
 
-        <map name="home-map">
-            <area shape="rect" coords="640,20,720,60" alt="Read" href="#" onclick="alert('Read Tab Clicked!')">
-            <area shape="rect" coords="730,20,860,60" alt="Assessment" href="#" onclick="alert('Assessment Tab Clicked!')">
-            <area shape="rect" coords="870,20,960,60" alt="Profile" href="#" onclick="alert('Profile Tab Clicked!')">
-            
-            <area shape="rect" coords="850,380,1010,480" alt="Upload Box" href="#" onclick="triggerBrowse()">
-            
-            <area shape="rect" coords="850,530,1010,580" alt="Let's Read" href="#" onclick="processPdf()">
-        </map>
+        <div class="header-nav-hotspot btn-nav-read" onclick="alert('Read Tab Clicked!')"></div>
+        <div class="header-nav-hotspot btn-nav-assess" onclick="alert('Assessment Tab Clicked!')"></div>
+        <div class="header-nav-hotspot btn-nav-profile" onclick="alert('Profile Tab Clicked!')"></div>
+
+        <div class="custom-upload-hotspot" id="dropZone" onclick="triggerBrowse()"></div>
 
         <div class="dynamic-file-card" id="fileCard" onclick="triggerBrowse()">
             <div class="file-icon"></div>
@@ -117,10 +170,13 @@
                 <p class="file-size-text" id="cardSize">0.0 KB</p>
             </div>
         </div>
+
+        <button class="custom-read-hotspot" onclick="processPdf()"></button>
     </div>
 
     <script>
         const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
         const fileCard = document.getElementById('fileCard');
         const cardName = document.getElementById('cardName');
         const cardSize = document.getElementById('cardSize');
@@ -133,6 +189,17 @@
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 handleFileSelection(e.target.files[0]);
+            }
+        });
+
+        /* Enable simple Drag & Drop mechanics natively */
+        window.addEventListener('dragover', (e) => e.preventDefault());
+        window.addEventListener('drop', (e) => e.preventDefault());
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelection(e.dataTransfer.files[0]);
             }
         });
 
@@ -151,7 +218,8 @@
                 cardName.innerText = file.name;
                 cardSize.innerText = formatBytes(file.size);
                 
-                // Show file card badge directly above your graphic
+                // Hide default hotspot layer and dynamically show the brown metadata card element
+                dropZone.style.display = 'none';
                 fileCard.style.display = 'flex';
             } else {
                 alert("Please upload PDF files only.");
