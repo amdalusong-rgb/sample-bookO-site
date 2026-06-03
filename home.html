@@ -144,4 +144,114 @@
             </div>
         </div>
 
-        <div class="btn-lets
+        <div class="btn-lets-read" onclick="navigateToReader()"></div>
+    </div>
+
+<script>
+    // Global App Variables
+    let uploadedFile = null;
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const filePill = document.getElementById('filePill');
+    const pillFileName = document.getElementById('pillFileName');
+    const pillFileSize = document.getElementById('pillFileSize');
+
+    // FIXED: Correctly configures the unpkg worker file so PDF parsing executes safely
+    try {
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js';
+        } else {
+            console.error("PDF.js library was unreachable during initial startup.");
+        }
+    } catch (e) {
+        console.error("Worker assignment error: ", e);
+    }
+
+    // Direct file selection tracking handler
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
+    });
+
+    // Handle drag and drop files securely
+    window.addEventListener('dragover', (e) => e.preventDefault());
+    window.addEventListener('drop', (e) => e.preventDefault());
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            handleFileSelection(e.dataTransfer.files[0]);
+        }
+    });
+
+    function handleFileSelection(file) {
+        if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
+            alert("Please upload a valid PDF document file.");
+            return;
+        }
+        uploadedFile = file;
+        
+        let sizeText = (file.size / 1024).toFixed(1) + " KB";
+        if (file.size > 1048576) {
+            sizeText = (file.size / 1048576).toFixed(1) + " MB";
+        }
+
+        pillFileName.innerText = file.name;
+        pillFileSize.innerText = sizeText;
+        filePill.style.display = 'flex'; 
+    }
+
+    function navigateToReader() {
+        if (!uploadedFile) {
+            alert("Please choose or drop a PDF file first!");
+            return;
+        }
+
+        if (typeof pdfjsLib === 'undefined') {
+            alert("The reading library is taking a moment to initialize. Please wait a few seconds and try again.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const typedarray = new Uint8Array(e.target.result);
+
+            pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                let maxPages = Math.min(pdf.numPages, 5);
+                let countPromises = [];
+                
+                for (let i = 1; i <= maxPages; i++) {
+                    countPromises.push(pdf.getPage(i).then(page => {
+                        return page.getTextContent().then(textContent => {
+                            return textContent.items.map(item => item.str).join(" ");
+                        });
+                    }));
+                }
+
+                return Promise.all(countPromises).then(pagesText => {
+                    let rawText = pagesText.join(" ").replace(/\s+/g, ' ').trim();
+                    let sentencesArray = rawText.match(/[^.!?]+[.!?]+(\s|$)/g);
+
+                    if (sentencesArray && sentencesArray.length > 0) {
+                        sentencesArray = sentencesArray.map(s => s.trim()).filter(s => s.length > 3);
+                    } else {
+                        sentencesArray = rawText.split('.').map(s => s.trim() + ".").filter(s => s.length > 3);
+                    }
+
+                    if (sentencesArray && sentencesArray.length > 0) {
+                        localStorage.setItem("processedPdfText", JSON.stringify(sentencesArray));
+                        window.location.href = "read.html";
+                    } else {
+                        alert("Could not process clear text blocks from this PDF resource layer.");
+                    }
+                });
+            }).catch(function(err) {
+                console.error(err);
+                alert("Error compiling document pages.");
+            });
+        };
+        reader.readAsArrayBuffer(uploadedFile);
+    }
+</script>
+</body>
+</html>
