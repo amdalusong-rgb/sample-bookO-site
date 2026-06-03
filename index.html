@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bookO</title>
-    <!-- Importing a rounded font to closely match your Canva design -->
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
     <style>
         * {
@@ -18,7 +17,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Comfortaa', 'Quicksand', 'Nunito', sans-serif;
+            font-family: 'Comfortaa', sans-serif;
         }
         .wrapper {
             position: relative;
@@ -31,30 +30,31 @@
             display: block;
         }
         
-        /* Fixed and aligned input box settings */
+        /* Fixed, right-shifted inputs with padding */
         .login-input {
             position: absolute;
-            left: 20%;               /* Shifted further right to sit inside the capsule shapes */
-            width: 16.5%;            /* Stretched horizontally to fill the text region safely */
-            height: 5.2%;            /* Matched thickness of your entry boxes */
+            left: 21.5%;              /* Pushes input right past the graphic labels */
+            width: 14.5%;             /* Keeps typing bounds inside the box container */
+            height: 4.8%;             /* Fits cleanly within capsule lines */
             background: transparent;
             border: none;
             outline: none;
-            font-family: inherit;    /* Inherits our clean rounded font styles */
-            font-size: clamp(10px, 1.1vw, 14px); /* Scales font size cleanly dynamically */
-            color: #7c6853;          /* Soft charcoal brown to blend into design text */
+            font-family: 'Comfortaa', sans-serif;
+            font-size: clamp(11px, 1.1vw, 15px);
+            color: #6d5339;           /* Beautiful matching canvas brown */
+            padding-left: 5px;
         }
         
-        /* Precision vertical alignments */
         .email-field {
-            top: 53.0%;
+            top: 53.2%;
         }
         
         .password-field {
-            top: 61.8%;
+            top: 62.0%;
+            letter-spacing: 3px;     /* Makes password dots look great */
         }
 
-        /* Hotspot Elements */
+        /* Hotspots */
         .google-hotspot, .login-hotspot {
             position: absolute;
             cursor: pointer;
@@ -64,7 +64,6 @@
             padding: 0;
         }
 
-        /* Continue with Google Area */
         .google-hotspot {
             top: 42.6%;
             left: 19.3%;
@@ -72,7 +71,6 @@
             height: 5.6%;
         }
 
-        /* Brown Log In Button Area */
         .login-hotspot {
             top: 72.8%;
             left: 19.3%;
@@ -84,32 +82,25 @@
 <body>
 
     <div class="wrapper">
-        <!-- Background Graphic Layer -->
         <img src="login.png" alt="Login Page" class="web-page">
         
-        <!-- Continue with Google Hotspot -->
         <button class="google-hotspot" onclick="simulateGoogleLogin()"></button>
         
-        <!-- Wrapped inside a formal submission form structure -->
         <form id="loginForm" onsubmit="handleLogin(event)">
-            <!-- Interactive Text Slots -->
+            <!-- Removed native text values entirely so they never overlap your graphic -->
             <input type="email" id="emailInput" class="login-input email-field" required>
             <input type="password" id="passwordInput" class="login-input password-field" required>
             
-            <!-- Clicking this brown hotspot triggers form submission validation -->
             <button type="submit" class="login-hotspot"></button>
         </form>
     </div>
 
     <script>
         function handleLogin(event) {
-            // Stops page from performing traditional empty reloads
             event.preventDefault();
-            
             const email = document.getElementById('emailInput').value.trim();
             const password = document.getElementById('passwordInput').value;
 
-            // Ensures entry values are valid before executing navigation
             if (email && password) {
                 window.location.href = "home.html";
             }
