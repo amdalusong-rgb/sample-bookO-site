@@ -47,105 +47,149 @@
         .btn-assess { left: 59.5%; width: 10.0%; }
         .btn-profile { left: 70.5%; width: 7.5%; }
 
-        /* THE SINGLE MAIN READING ENGINE FLOW CONTAINER */
-        .reading-flow-container {
+        /* SHARED CORE MARGIN BOUNDARIES */
+        .focus-track {
             position: absolute;
-            left: 36.2%; /* Shifted right slightly for beautiful symmetry */
-            width: 46.5%; /* Narrowed to guarantee text never clips the card boundary edge */
-            top: 27.2%;
+            left: 35.8%;
+            width: 47.0%; /* Perfectly constrained to keep text well inside the card graphic */
             font-size: clamp(0.6rem, 1.1vw, 0.95rem);
             font-weight: 700;
-            line-height: 2.3; 
             text-align: left;
             z-index: 5;
-        }
-
-        /* Target styles applied dynamically to specific text line tracks */
-        .line-track {
-            display: block; /* Ensures each block forms its own full-width focus corridor */
-            width: 100%;
-            padding: 6px 14px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
             border-radius: 6px;
-            white-space: normal; /* Permits text elements to gracefully settle down */
-            word-break: break-word; /* Hard safety line wrap container guard */
-            box-sizing: border-box;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Gracefully truncates any single line that is too long */
+        }
+        
+        /* Dark tracking bar line */
+        #sentenceBox1 {
+            top: 27.5%;
+            height: 5.3%;
+            background-color: #2b3925; 
+            color: #ffffff; 
         }
 
-        .focus-primary {
-            background-color: #2b3925 !important;
-            color: #ffffff !important;
+        /* Soft gray secondary trailing line */
+        #sentenceBox2 {
+            top: 33.7%;
+            height: 4.6%;
+            background-color: #e3e8e1; 
+            color: #2b3925; 
         }
 
-        .focus-secondary {
-            background-color: #e3e8e1 !important;
-            color: #2b3925 !important;
-            margin-top: 10px; /* Aligns row spacing with your background tracking grid */
+        /* Non-highlighted base document container block */
+        .remaining-text-block {
+            position: absolute;
+            left: 35.8%;
+            width: 47.0%;
+            top: 39.8%; /* Safely starts right below the light green highlight track */
+            font-size: clamp(0.6rem, 1.1vw, 0.95rem);
+            font-weight: 700;
+            line-height: 1.85; 
+            text-align: left;
+            color: rgba(43, 57, 37, 0.35); /* Elegant translucent reading font */
+            z-index: 4;
+            padding: 0 16px;
         }
 
-        /* Non-highlighted text lines corridor block */
         .remaining-line {
-            display: block;
-            width: 100%;
-            padding: 6px 14px;
-            white-space: normal;
-            word-break: break-word;
-            color: rgba(43, 57, 37, 0.35); /* Elegant low-opacity trailing lines */
-            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
-        <img src="readOpenDyslexic.png?v=3" alt="bookO Read Layout View" class="web-page">
+        <img src="readOpenDyslexic.png?v=4" alt="bookO Read Layout View" class="web-page">
 
         <div class="nav-hotspot btn-home" onclick="window.location.href='home.html'"></div>
         <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
         <div class="nav-hotspot btn-assess" onclick="alert('Assessment module launching soon!')"></div>
         <div class="nav-hotspot btn-profile" onclick="alert('User profile settings menu loading...')"></div>
 
-        <div id="readingFlow" class="reading-flow-container">Loading your document layout tracks...</div>
+        <div id="sentenceBox1" class="focus-track"></div>
+        <div id="sentenceBox2" class="focus-track"></div>
+
+        <div id="remainingTextBlock" class="remaining-text-block"></div>
     </div>
 
     <script>
         window.onload = function() {
             const storedData = localStorage.getItem("processedPdfText");
-            const flowContainer = document.getElementById("readingFlow");
+            const box1 = document.getElementById("sentenceBox1");
+            const box2 = document.getElementById("sentenceBox2");
+            const remainderContainer = document.getElementById("remainingTextBlock");
+
+            // CRITICAL RESET: Flush everything down to an empty string to kill overlaps
+            box1.innerText = "";
+            box2.innerText = "";
+            remainderContainer.innerHTML = "";
 
             if (!storedData) {
-                flowContainer.innerText = "No active document track found. Please return to Home.";
+                box1.innerText = "No active document track found. Please return to Home.";
                 return;
             }
 
             try {
                 const parsed = JSON.parse(storedData);
-                let fullText = Array.isArray(parsed) ? parsed.join(" ") : storedData;
-                
-                // Clear the default loading state message string
-                flowContainer.innerHTML = "";
+                let fullTextCombined = Array.isArray(parsed) ? parsed.join(" ") : storedData;
 
-                // Temporary block element to let the browser naturally calculate line wrap breaks
-                const tempDiv = document.createElement("div");
-                tempDiv.style.width = flowContainer.offsetWidth + "px";
-                tempDiv.style.font = window.getComputedStyle(flowContainer).font;
-                tempDiv.style.visibility = "hidden";
-                tempDiv.style.position = "absolute";
-                tempDiv.style.whiteSpace = "normal";
-                tempDiv.style.wordBreak = "break-word";
-                document.body.appendChild(tempDiv);
+                // Set max character limits per row to dynamically enforce perfect horizontal line lengths
+                const maxCharsPerLine = 68; 
+                const words = fullTextCombined.split(" ");
+                const layoutLines = [];
+                let currentLine = "";
 
-                // Break text string down into single words to find exact wrap points
-                const words = fullText.split(" ");
-                let currentLineText = "";
-                const linesArray = [];
-
+                // Break up the text flow smoothly by characters rather than complex pixel measuring
                 for (let i = 0; i < words.length; i++) {
-                    let testLine = currentLineText + (currentLineText ? " " : "") + words[i];
-                    tempDiv.innerText = testLine;
-                    
-                    // If the word pushes the layout past the visual container margin limits, break it!
-                    if (tempDiv.offsetHeight > 30 && currentLineText !== "") {
-                        linesArray.push(currentLineText);
-                        currentLineText = words[i];
+                    let testLine = currentLine + (currentLine ? " " : "") + words[i];
+                    if (testLine.length > maxCharsPerLine && currentLine !== "") {
+                        layoutLines.push(currentLine);
+                        currentLine = words[i];
                     } else {
-                        currentLineText = testLine;
+                        currentLine = testLine;
+                    }
+                }
+                if (currentLine) {
+                    layoutLines.push(currentLine);
+                }
+
+                // Render Line 1 into the Dark Track
+                if (layoutLines.length > 0) {
+                    box1.innerText = layoutLines[0];
+                }
+
+                // Render Line 2 into the Light Track
+                if (layoutLines.length > 1) {
+                    box2.innerText = layoutLines[1];
+                    box2.style.display = "flex"; 
+                } else {
+                    box2.style.display = "none"; 
+                }
+
+                // Render everything else cleanly underneath as basic text flows
+                if (layoutLines.length > 2) {
+                    for (let i = 2; i < Math.min(layoutLines.length, 12); i++) {
+                        const lineDiv = document.createElement("div");
+                        lineDiv.className = "remaining-line";
+                        lineDiv.innerText = layoutLines[i];
+                        remainderContainer.appendChild(lineDiv);
+                    }
+                }
+
+            } catch (e) {
+                console.error(e);
+                box1.innerText = "Error parsing text document alignment streams.";
+            }
+        };
+    </script>
+
+</body>
+</html>
