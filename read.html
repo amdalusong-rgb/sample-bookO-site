@@ -32,16 +32,24 @@
         .wrapper { position: relative; width: 100%; max-width: 1000px; margin: auto; }
         .web-page { width: 100%; height: auto; display: block; }
 
-        /* --- INTERACTIVE HITBOX FOR SIDEBAR SLIDER SWITCH --- */
+        /* --- RE-ALIGNED HITBOX FOR SIDEBAR SLIDER SWITCH --- */
         .dyslexia-switch-overlay {
             position: absolute;
-            top: 34.5%; 
+            top: 41.2%; 
             left: 11.2%;
             width: 3.5%; 
             height: 2.2%;
-            opacity: 0; /* Keeps it hidden while leaving the interactive frame clickable */
+            opacity: 0; 
             cursor: pointer;
-            z-index: 10;
+            z-index: 110;
+        }
+
+        /* Nav hot-links inside reader sidebar */
+        .reader-nav-home {
+            position: absolute;
+            top: 4.5%; left: 42.5%;
+            width: 7.5%; height: 4.5%;
+            cursor: pointer; z-index: 100;
         }
 
         /* The white text display layout column wrapper box inside the graphic sheet asset boundaries */
@@ -109,6 +117,7 @@
     <div class="wrapper">
         <img id="readerBg" src="read.png" alt="bookO Reader Frame Layout" class="web-page">
 
+        <div class="reader-nav-home" onclick="window.location.href='home.html'"></div>
         <input type="checkbox" id="toggleDyslexia" class="dyslexia-switch-overlay">
 
         <div class="sheet-container">
@@ -130,7 +139,6 @@
         box2.innerText = "";
         remainderContainer.innerHTML = "";
 
-        // Parse local storage content elements safely
         let storedData = localStorage.getItem("processedPdfText");
         let sentences = [];
 
