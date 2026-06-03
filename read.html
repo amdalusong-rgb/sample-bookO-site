@@ -1,198 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bookO - Read Mode</title>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #2b3925;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Comfortaa', sans-serif;
-            overflow-x: hidden;
-        }
-        
-        .wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 1000px;
-            margin: auto;
-        }
-        .web-page {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Nav Header Navigation Mapping */
-        .nav-hotspot {
-            position: absolute;
-            top: 4.5%;
-            height: 4.5%;
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0); 
-            z-index: 10;
-        }
-        .btn-home { left: 42.5%; width: 7.5%; }
-        .btn-read { left: 51.0%; width: 6.5%; }
-        .btn-assess { left: 59.5%; width: 10.0%; }
-        .btn-profile { left: 70.5%; width: 7.5%; }
-
-        /* SHARED CORE MARGIN BOUNDARIES */
-        .focus-track {
-            position: absolute;
-            left: 35.8%;
-            width: 47.0%; /* Perfectly constrained to keep text well inside the card graphic */
-            font-size: clamp(0.6rem, 1.1vw, 0.95rem);
-            font-weight: 700;
-            text-align: left;
-            z-index: 5;
-            padding: 0 16px;
-            display: flex;
-            align-items: center;
-            border-radius: 6px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis; /* Gracefully truncates any single line that is too long */
-        }
-        
-        /* Dark tracking bar line */
-        #sentenceBox1 {
-            top: 27.5%;
-            height: 5.3%;
-            background-color: #2b3925; 
-            color: #ffffff; 
-        }
-
-        /* Soft gray secondary trailing line */
-        #sentenceBox2 {
-            top: 33.7%;
-            height: 4.6%;
-            background-color: #e3e8e1; 
-            color: #2b3925; 
-        }
-
-        /* Non-highlighted base document container block */
-        .remaining-text-block {
-            position: absolute;
-            left: 35.8%;
-            width: 47.0%;
-            top: 39.8%; /* Safely starts right below the light green highlight track */
-            font-size: clamp(0.6rem, 1.1vw, 0.95rem);
-            font-weight: 700;
-            line-height: 1.85; 
-            text-align: left;
-            color: rgba(43, 57, 37, 0.35); /* Elegant translucent reading font */
-            z-index: 4;
-            padding: 0 16px;
-        }
-
-        .remaining-line {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 5px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="wrapper">
-        <img src="readOpenDyslexic.png?v=4" alt="bookO Read Layout View" class="web-page">
-
-        <div class="nav-hotspot btn-home" onclick="window.location.href='home.html'"></div>
-        <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
-        <div class="nav-hotspot btn-assess" onclick="alert('Assessment module launching soon!')"></div>
-        <div class="nav-hotspot btn-profile" onclick="alert('User profile settings menu loading...')"></div>
-
-        <div id="sentenceBox1" class="focus-track"></div>
-        <div id="sentenceBox2" class="focus-track"></div>
-
-        <div id="remainingTextBlock" class="remaining-text-block"></div>
-    </div>
-
-    <script>
+<script>
     window.onload = function() {
         const box1 = document.getElementById("sentenceBox1");
         const box2 = document.getElementById("sentenceBox2");
         const remainderContainer = document.getElementById("remainingTextBlock");
 
-        // CRITICAL RESET: Flush everything down to an empty string to kill overlaps
+        // CRITICAL RESET: Clear out formatting boundaries
         box1.innerText = "";
         box2.innerText = "";
         remainderContainer.innerHTML = "";
 
-        // 1. SAFELY READ AND RECOVER DATA STREAM
+        // 1. DATA ACQUISITION & FALLBACK CHECK
         let storedData = localStorage.getItem("processedPdfText");
-        let layoutLines = [];
-        const maxCharsPerLine = 68; 
+        let sentences = [];
 
         try {
             if (storedData) {
-                const parsed = JSON.parse(storedData);
-                let fullTextCombined = Array.isArray(parsed) ? parsed.join(" ") : storedData;
-
-                const words = fullTextCombined.split(" ");
-                let currentLine = "";
-
-                // Break up the text flow smoothly by characters rather than complex pixel measuring
-                for (let i = 0; i < words.length; i++) {
-                    let testLine = currentLine + (currentLine ? " " : "") + words[i];
-                    if (testLine.length > maxCharsPerLine && currentLine !== "") {
-                        layoutLines.push(currentLine);
-                        currentLine = words[i];
-                    } else {
-                        currentLine = testLine;
-                    }
-                }
-                if (currentLine) {
-                    layoutLines.push(currentLine);
-                }
+                sentences = JSON.parse(storedData);
             }
         } catch (e) {
-            console.error("Error parsing text document alignment streams:", e);
+            console.error("Error reading stored text array sequence:", e);
         }
 
-        // 2. CRITICAL SAFETY CRASH GUARD
-        // If data is absent, broken, or stripped during the authentication redirect loop, 
-        // populate fallback lines immediately so the browser never displays a blank white window.
-        if (layoutLines.length === 0) {
-            layoutLines = [
+        // Apply fallback instructions if array content is empty
+        if (!sentences || sentences.length === 0) {
+            sentences = [
                 "Welcome to bookO Reader!",
-                "It looks like your document data didn't transfer over correctly during the authentication redirect loop.",
-                "Please head back to the Home Dashboard tab to re-upload your academic PDF file to start learning!"
+                "No processing data track was detected from your dashboard session layout.",
+                "Please return to the Home page and load your academic document to begin reading line by line."
             ];
         }
 
-        // 3. SECURE RENDER SYSTEM execution paths
-        // Render Line 1 into the Dark Track
-        if (layoutLines.length > 0) {
-            box1.innerText = layoutLines[0];
+        // 2. FIXED: LINE-BY-LINE HIGHLIGHT EXTRACTION
+        // Displays complete, uninterrupted sentences matching the core user design track
+        if (sentences.length > 0) {
+            box1.innerText = sentences[0];
         }
 
-        // Render Line 2 into the Light Track
-        if (layoutLines.length > 1) {
-            box2.innerText = layoutLines[1];
-            box2.style.display = "flex"; 
+        if (sentences.length > 1) {
+            box2.innerText = sentences[1];
+            box2.style.display = "flex";
         } else {
-            box2.style.display = "none"; 
+            box2.style.display = "none";
         }
 
-        // Render everything else cleanly underneath as basic text flows
-        if (layoutLines.length > 2) {
-            for (let i = 2; i < Math.min(layoutLines.length, 12); i++) {
+        // 3. FIXED: MARGIN-ALIGNED UNHIGHLIGHTED FLOW RUNS
+        // Renders remaining sentences sequentially down the card with native CSS word wrap safety
+        if (sentences.length > 2) {
+            for (let i = 2; i < Math.min(sentences.length, 12); i++) {
                 const lineDiv = document.createElement("div");
-                lineDiv.className = "remaining-line";
-                lineDiv.innerText = layoutLines
-    </script>
-</body>
-</html>
+                
+                // Uses the styling rules from your remaining-line layout sheet class
+                lineDiv.className = "remaining-line"; 
+                lineDiv.innerText = sentences[i];
+                
+                // Injects CSS styles directly to enforce consistent layout margins
+                lineDiv.style.width = "100%";
+                lineDiv.style.textAlign = "left";
+                lineDiv.style.marginBottom = "12px";
+                lineDiv.style.lineHeight = "1.5";
+                lineDiv.style.wordBreak = "break-word";
+                lineDiv.style.whiteSpace = "normal";
+                
+                remainderContainer.appendChild(lineDiv);
+            }
+        }
+    };
+</script>
