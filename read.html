@@ -21,7 +21,7 @@
             overflow-x: hidden;
         }
         
-        /* Anchor frame scaling box */
+        /* Main responsive wrapper matching your design layout dimensions */
         .wrapper {
             position: relative;
             width: 100%;
@@ -34,7 +34,7 @@
             display: block;
         }
 
-        /* Nav Header Navigation Map Links */
+        /* Nav Header Navigation Mapping */
         .nav-hotspot {
             position: absolute;
             top: 4.5%;
@@ -43,53 +43,39 @@
             background-color: rgba(0, 0, 0, 0); 
             z-index: 10;
         }
-        .btn-home { left: 44.5%; width: 7.5%; }
-        .btn-read { left: 54.0%; width: 6.5%; }
-        .btn-assess { left: 61.5%; width: 10.0%; }
-        .btn-profile { left: 72.5%; width: 7.5%; }
+        .btn-home { left: 42.5%; width: 7.5%; }
+        .btn-read { left: 51.0%; width: 6.5%; }
+        .btn-assess { left: 59.5%; width: 10.0%; }
+        .btn-profile { left: 70.5%; width: 7.5%; }
 
-        /* THE MASKING ELEMENT: 
-           This element overlays a clean white patch over the design's 
-           embedded sample text paragraphs, making the page blank!
-        */
-        .document-blank-mask {
-            position: absolute;
-            top: 29.5%;
-            left: 35.5%;
-            width: 49.5%;
-            height: 65%;
-            background-color: #ffffff; /* Solid white mask to match your card block */
-            z-index: 2;
-        }
-
-        /* REAL LIVE TEXT ENGINE OVERLAYS */
+        /* SENTENCE CORRIDOR FOCUS OVERLAYS */
         .focus-line {
             position: absolute;
-            left: 36.2%;
-            width: 48%;
-            font-size: clamp(0.6rem, 1.1vw, 1.0rem);
+            left: 35.8%; /* Snaps text to the left margin of the blank card container */
+            width: 48.5%; /* Restricts line lengths to keep text within the page margins */
+            font-size: clamp(0.6rem, 1.1vw, 0.95rem);
             font-weight: 700;
             text-align: left;
             z-index: 5;
             display: flex;
             align-items: center;
-            padding: 0 12px;
+            padding: 0 14px;
             border-radius: 6px;
         }
         
-        /* Focus Line 1 Styling: Recreating the dark green bar overlay over the blank space */
+        /* Dark tracking bar line */
         #sentenceBox1 {
-            top: 31.4%;
+            top: 27.5%; /* Shifted up slightly to perfectly align with the new blank asset spacing */
             height: 5.3%;
-            background-color: #2b3925; /* Dark focus tracker container background */
+            background-color: #2b3925; 
             color: #ffffff; 
         }
 
-        /* Focus Line 2 Styling: Recreating the soft gray bar overlay */
+        /* Soft gray secondary trailing line */
         #sentenceBox2 {
-            top: 37.6%;
+            top: 33.7%;
             height: 4.6%;
-            background-color: #e3e8e1; /* Secondary grey background row tracker */
+            background-color: #e3e8e1; 
             color: #2b3925; 
         }
     </style>
@@ -97,9 +83,7 @@
 <body>
 
     <div class="wrapper">
-        <img src="read.png" alt="bookO Read Layout View" class="web-page">
-
-        <div class="document-blank-mask"></div>
+        <img src="readOpenDyslexic.png" alt="bookO Read Layout View" class="web-page">
 
         <div class="nav-hotspot btn-home" onclick="window.location.href='home.html'"></div>
         <div class="nav-hotspot btn-read" onclick="window.location.href='read.html'"></div>
@@ -120,23 +104,4 @@
                 try {
                     const parsed = JSON.parse(storedData);
                     
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        box1.innerText = parsed[0];
-                        box2.innerText = parsed[1] ? parsed[1] : "...End of Document File content...";
-                    } else {
-                        box1.innerText = storedData.substring(0, 85);
-                        box2.innerText = "";
-                    }
-                } catch(e) {
-                    box1.innerText = storedData.substring(0, 85);
-                    box2.innerText = "";
-                }
-            } else {
-                box1.innerText = "No document active. Please go back to Home to drop an academic file.";
-                box2.innerText = "";
-            }
-        };
-    </script>
-
-</body>
-</html>
+                    if (Array.isArray(parsed) && parsed.length > 0)
