@@ -121,30 +121,27 @@
     </div>
 
     <script>
-        window.onload = function() {
-            const storedData = localStorage.getItem("processedPdfText");
-            const box1 = document.getElementById("sentenceBox1");
-            const box2 = document.getElementById("sentenceBox2");
-            const remainderContainer = document.getElementById("remainingTextBlock");
+    window.onload = function() {
+        const box1 = document.getElementById("sentenceBox1");
+        const box2 = document.getElementById("sentenceBox2");
+        const remainderContainer = document.getElementById("remainingTextBlock");
 
-            // CRITICAL RESET: Flush everything down to an empty string to kill overlaps
-            box1.innerText = "";
-            box2.innerText = "";
-            remainderContainer.innerHTML = "";
+        // CRITICAL RESET: Flush everything down to an empty string to kill overlaps
+        box1.innerText = "";
+        box2.innerText = "";
+        remainderContainer.innerHTML = "";
 
-            if (!storedData) {
-                box1.innerText = "No active document track found. Please return to Home.";
-                return;
-            }
+        // 1. SAFELY READ AND RECOVER DATA STREAM
+        let storedData = localStorage.getItem("processedPdfText");
+        let layoutLines = [];
+        const maxCharsPerLine = 68; 
 
-            try {
+        try {
+            if (storedData) {
                 const parsed = JSON.parse(storedData);
                 let fullTextCombined = Array.isArray(parsed) ? parsed.join(" ") : storedData;
 
-                // Set max character limits per row to dynamically enforce perfect horizontal line lengths
-                const maxCharsPerLine = 68; 
                 const words = fullTextCombined.split(" ");
-                const layoutLines = [];
                 let currentLine = "";
 
                 // Break up the text flow smoothly by characters rather than complex pixel measuring
@@ -160,36 +157,42 @@
                 if (currentLine) {
                     layoutLines.push(currentLine);
                 }
-
-                // Render Line 1 into the Dark Track
-                if (layoutLines.length > 0) {
-                    box1.innerText = layoutLines[0];
-                }
-
-                // Render Line 2 into the Light Track
-                if (layoutLines.length > 1) {
-                    box2.innerText = layoutLines[1];
-                    box2.style.display = "flex"; 
-                } else {
-                    box2.style.display = "none"; 
-                }
-
-                // Render everything else cleanly underneath as basic text flows
-                if (layoutLines.length > 2) {
-                    for (let i = 2; i < Math.min(layoutLines.length, 12); i++) {
-                        const lineDiv = document.createElement("div");
-                        lineDiv.className = "remaining-line";
-                        lineDiv.innerText = layoutLines[i];
-                        remainderContainer.appendChild(lineDiv);
-                    }
-                }
-
-            } catch (e) {
-                console.error(e);
-                box1.innerText = "Error parsing text document alignment streams.";
             }
-        };
-    </script>
+        } catch (e) {
+            console.error("Error parsing text document alignment streams:", e);
+        }
 
+        // 2. CRITICAL SAFETY CRASH GUARD
+        // If data is absent, broken, or stripped during the authentication redirect loop, 
+        // populate fallback lines immediately so the browser never displays a blank white window.
+        if (layoutLines.length === 0) {
+            layoutLines = [
+                "Welcome to bookO Reader!",
+                "It looks like your document data didn't transfer over correctly during the authentication redirect loop.",
+                "Please head back to the Home Dashboard tab to re-upload your academic PDF file to start learning!"
+            ];
+        }
+
+        // 3. SECURE RENDER SYSTEM execution paths
+        // Render Line 1 into the Dark Track
+        if (layoutLines.length > 0) {
+            box1.innerText = layoutLines[0];
+        }
+
+        // Render Line 2 into the Light Track
+        if (layoutLines.length > 1) {
+            box2.innerText = layoutLines[1];
+            box2.style.display = "flex"; 
+        } else {
+            box2.style.display = "none"; 
+        }
+
+        // Render everything else cleanly underneath as basic text flows
+        if (layoutLines.length > 2) {
+            for (let i = 2; i < Math.min(layoutLines.length, 12); i++) {
+                const lineDiv = document.createElement("div");
+                lineDiv.className = "remaining-line";
+                lineDiv.innerText = layoutLines
+    </script>
 </body>
 </html>
